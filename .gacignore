@@ -1,0 +1,25 @@
+# Python Environment
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Python Engine
+engine/venv/
+engine/.venv/
+engine/__pycache__/
+
+# IDE & Logs
+.vscode/
+.gemini/
+*.log
+
+# Build & Versioning
+.git/
+dist/
+build/
+
+# Frontend
+dynaman-ui/node_modules/
+dynaman-ui/dist/
+dynaman-ui/.vite/

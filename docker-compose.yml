@@ -1,0 +1,30 @@
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: dyna_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=dynaman
+    restart: always
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: dyna_express
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      # This must match the service name 'mongodb' above
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_MONGODB_PORT=27017
+      # Default credentials to login to the web UI
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=pass
+    depends_on:
+      - mongodb
+
+volumes:
+  mongo_data:

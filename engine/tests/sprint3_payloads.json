@@ -1,0 +1,82 @@
+{
+  "metadata_context": {
+    "create_author_schema": {
+      "endpoint": "POST /schemas/",
+      "description": "Create 'Author' schema for reference target",
+      "payload": {
+        "entity_name": "Author",
+        "description": "Writers of articles",
+        "fields": [
+          {
+            "name": "name",
+            "field_type": "string"
+          },
+          {
+            "name": "age",
+            "field_type": "number",
+            "constraints": {
+              "min_value": 18
+            }
+          }
+        ]
+      }
+    },
+    "create_article_schema": {
+      "endpoint": "POST /schemas/",
+      "description": "Create 'Article' schema with a reference field",
+      "payload": {
+        "entity_name": "Article",
+        "description": "Blog posts and news",
+        "fields": [
+          {
+            "name": "title",
+            "field_type": "string"
+          },
+          {
+            "name": "content",
+            "field_type": "string"
+          },
+          {
+            "name": "author_id",
+            "field_type": "reference",
+            "reference_target": "Author",
+            "description": "Link to the Author entity"
+          }
+        ]
+      }
+    }
+  },
+  "execution_context": {
+    "create_author_record": {
+      "endpoint": "POST /data/Author",
+      "description": "Create an Author record",
+      "payload": {
+        "name": "Jane Doe",
+        "age": 32
+      }
+    },
+    "create_article_record": {
+      "endpoint": "POST /data/Article",
+      "description": "Create an Article record linking to an Author",
+      "payload": {
+        "title": "The Future of AI",
+        "content": "Artificial Intelligence is evolving rapidly...",
+        "author_id": "REPLACE_WITH_VALID_AUTHOR_OBJECT_ID"
+      }
+    }
+  },
+  "queries": {
+    "filter_authors_by_age": {
+      "endpoint": "GET /data/Author?age_gt=25",
+      "description": "List authors older than 25"
+    },
+    "search_articles_by_title": {
+      "endpoint": "GET /data/Article?title_contains=Future",
+      "description": "Find articles with 'Future' in the title"
+    },
+    "full_text_search": {
+        "endpoint": "GET /data/Article/search?q=Intelligence",
+        "description": "Full text search for 'Intelligence'"
+    }
+  }
+}
