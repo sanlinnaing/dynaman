@@ -21,11 +21,18 @@ def test_validate_payload_defaults():
     assert payload["role"] == "User"
 
 def test_validate_payload_missing_field():
-    fields = [FieldDefinition(name="required", field_type=FieldType.STRING)]
+    fields = [FieldDefinition(name="required", field_type=FieldType.STRING, is_required=True)]
     schema = SchemaEntity(entity_name="Test", fields=fields)
     payload = {}
     with pytest.raises(ValueError, match="Missing field: required"):
         schema.validate_payload(payload)
+
+def test_validate_payload_optional_missing():
+    fields = [FieldDefinition(name="optional", field_type=FieldType.STRING, is_required=False)]
+    schema = SchemaEntity(entity_name="Test", fields=fields)
+    payload = {}
+    schema.validate_payload(payload) # Should not raise
+
 
 def test_validate_payload_type_error_number():
     fields = [FieldDefinition(name="age", field_type=FieldType.NUMBER)]

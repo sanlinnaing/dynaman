@@ -19,6 +19,7 @@ class FieldDefinition(BaseModel):
     default: Any = None
     constraints: Optional[FieldConstraint] = None
     reference_target: Optional[str] = None
+    is_required: bool = False
 
 class SchemaEntity(BaseModel):
     """Rich Domain Model: Handles business logic for schemas"""
@@ -36,8 +37,10 @@ class SchemaEntity(BaseModel):
             if field.name not in payload:
                 if field.default is not None:
                     payload[field.name] = field.default
-                else:
+                elif field.is_required:
                     raise ValueError(f"Missing field: {field.name}")
+                else:
+                    continue
             
             value = payload[field.name]
             if field.field_type == FieldType.NUMBER and not isinstance(value, (int, float)):
