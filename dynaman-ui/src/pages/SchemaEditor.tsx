@@ -236,8 +236,9 @@ export default function SchemaEditor() {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">{t('schema.editor.fields')}</h2>
           {schema.fields.map((field, index) => (
-            <div key={index} className="grid grid-cols-1 md:grid-cols-6 gap-2 items-end border p-4 rounded-md">
-              <div className="col-span-2 space-y-1">
+            <div key={index} className="grid grid-cols-1 md:grid-cols-12 gap-2 items-start border p-4 rounded-md bg-white">
+              {/* Name */}
+              <div className="col-span-3 space-y-1">
                 <Label htmlFor={`field-name-${index}`} className="text-sm font-medium text-gray-700">{t('schema.editor.fieldName')}</Label>
                 <Input
                   id={`field-name-${index}`}
@@ -249,7 +250,9 @@ export default function SchemaEditor() {
                   placeholder="e.g., firstName, price"
                 />
               </div>
-              <div className="col-span-2 space-y-1">
+
+              {/* Label */}
+              <div className="col-span-3 space-y-1">
                 <Label htmlFor={`field-label-${index}`} className="text-sm font-medium text-gray-700">{t('schema.editor.label')}</Label>
                 <Input
                   id={`field-label-${index}`}
@@ -261,7 +264,9 @@ export default function SchemaEditor() {
                   placeholder="e.g., First Name"
                 />
               </div>
-              <div className="space-y-1">
+
+              {/* Type */}
+              <div className="col-span-2 space-y-1">
                 <Label htmlFor={`field-type-${index}`} className="text-sm font-medium text-gray-700">{t('schema.editor.type')}</Label>
                 <select
                   id={`field-type-${index}`}
@@ -280,8 +285,8 @@ export default function SchemaEditor() {
                 </select>
               </div>
 
-              {/* Is Reference? checkbox and reference_target select */}
-              <div className="col-span-1 space-y-1">
+              {/* Reference Column */}
+              <div className="col-span-2 space-y-2 pt-1">
                 <div className="flex items-center">
                  <input
                    id={`field-is-reference-${index}`}
@@ -299,7 +304,7 @@ export default function SchemaEditor() {
                     name="reference_target"
                     value={field.reference_target}
                     onChange={(e) => handleFieldChange(index, e)}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mt-2"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <option value="">{t('schema.editor.referenceTarget')}</option>
                     {availableSchemas.map((schemaName) => (
@@ -309,8 +314,11 @@ export default function SchemaEditor() {
                     ))}
                   </select>
                 )}
-                {/* Required checkbox, moved to below reference_target select for better layout */}
-                <div className="flex items-center mt-2">
+              </div>
+
+              {/* Flags Column (Required, Unique) */}
+              <div className="col-span-1 space-y-2 pt-1">
+                <div className="flex items-center">
                  <input
                    id={`field-required-${index}`}
                    name="is_required"
@@ -322,8 +330,7 @@ export default function SchemaEditor() {
                  <Label htmlFor={`field-required-${index}`} className="ml-2 text-sm text-gray-700">{t('schema.editor.required')}</Label>
                 </div>
 
-                {/* Unique Checkbox */}
-                <div className="flex items-center mt-2">
+                <div className="flex items-center">
                  <input
                    id={`field-unique-${index}`}
                    name="is_unique"
@@ -336,7 +343,8 @@ export default function SchemaEditor() {
                 </div>
               </div>
 
-              <div className="col-span-1 flex items-center justify-end">
+              {/* Delete Button */}
+              <div className="col-span-1 flex items-center justify-end pt-7">
                 <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveField(index)}>
                   <Trash2 className="h-4 w-4 text-red-500" />
                 </Button>
