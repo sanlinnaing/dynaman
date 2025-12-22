@@ -252,7 +252,7 @@ export default function SchemaEditor() {
                   name="field_type"
                   value={field.field_type}
                   onChange={(e) => handleFieldChange(index, e)}
-                  className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   disabled={!!field.reference_target} // Disable if it's a reference field
                 >
                   <option value="string">String</option>
@@ -282,7 +282,7 @@ export default function SchemaEditor() {
                     name="reference_target"
                     value={field.reference_target}
                     onChange={(e) => handleFieldChange(index, e)}
-                    className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md mt-2"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mt-2"
                   >
                     <option value="">Select Referenced Schema</option>
                     {availableSchemas.map((schemaName) => (
