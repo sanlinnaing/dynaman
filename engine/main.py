@@ -21,7 +21,23 @@ async def lifespan(app: FastAPI):
     # on shutdown
     disconnect_db()
 
-app = FastAPI(title=f"Dyna Management Tool - {settings.app_mode.capitalize()}", lifespan=lifespan)
+# Include Versioned Routers based on APP_MODE
+docs_url = "/docs"
+openapi_url = "/openapi.json"
+
+if settings.app_mode == "metadata":
+    docs_url = "/schemas/docs"
+    openapi_url = "/schemas/openapi.json"
+elif settings.app_mode == "execution":
+    docs_url = "/data/docs"
+    openapi_url = "/data/openapi.json"
+
+app = FastAPI(
+    title=f"Dyna Management Tool - {settings.app_mode.capitalize()}",
+    lifespan=lifespan,
+    docs_url=docs_url,
+    openapi_url=openapi_url
+)
 
 # CORS Configuration
 origins = [
