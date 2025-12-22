@@ -287,7 +287,7 @@ export default function SchemaEditor() {
 
               {/* Reference Column */}
               <div className="col-span-2 space-y-1">
-                <div className="flex items-center h-[20px]"> {/* Fixed height to match Label */}
+                <div className="flex items-center h-[24px]"> {/* Fixed height to match Label */}
                  <input
                    id={`field-is-reference-${index}`}
                    name="is_reference"
