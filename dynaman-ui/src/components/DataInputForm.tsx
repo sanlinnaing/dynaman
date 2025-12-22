@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import api from '@/lib/api';
 import ReferenceSelect from './ReferenceSelect'; // Import ReferenceSelect
+import { useLanguage } from '@/lib/i18n';
 
 interface SchemaField {
   name: string;
@@ -31,6 +32,7 @@ export default function DataInputForm({ schema, isOpen, onClose, onSave, recordI
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (schema) {
@@ -59,13 +61,13 @@ export default function DataInputForm({ schema, isOpen, onClose, onSave, recordI
       if (field.is_required) {
         const value = formData[field.name];
         if (value === undefined || value === null || (typeof value === 'string' && value.trim() === '')) {
-          setError(`Field '${field.label || field.name}' is required.`);
+          setError(t('form.validation.required', { label: field.label || field.name }));
           return false;
         }
       }
       // Basic type validation (can be more sophisticated)
       if (field.field_type === 'number' && typeof formData[field.name] === 'string' && isNaN(Number(formData[field.name]))) {
-        setError(`Field '${field.label || field.name}' must be a number.`);
+        setError(t('form.validation.number', { label: field.label || field.name }));
         return false;
       }
     }
@@ -94,7 +96,7 @@ export default function DataInputForm({ schema, isOpen, onClose, onSave, recordI
       onClose(); // Close the form
     } catch (err: any) {
       console.error('Failed to save data record:', err);
-      let errorMessage = 'Failed to save data. Please check your inputs.';
+      let errorMessage = t('form.error');
       if (err.response && err.response.data) {
         if (typeof err.response.data === 'string') {
           errorMessage = err.response.data;
@@ -123,11 +125,11 @@ export default function DataInputForm({ schema, isOpen, onClose, onSave, recordI
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-background p-6 rounded-lg shadow-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold mb-4">{recordId ? `Edit Record: ${recordId}` : `Add New Record to ${schema.entity_name}`}</h2>
+        <h2 className="text-2xl font-bold mb-4">{recordId ? t('form.editTitle', { entity: schema.entity_name }) : t('form.createTitle', { entity: schema.entity_name })}</h2>
         
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-            <strong className="font-bold">Error!</strong>
+            <strong className="font-bold">{t('common.error')}!</strong>
             <span className="block sm:inline"> {error}</span>
           </div>
         )}
@@ -199,7 +201,7 @@ export default function DataInputForm({ schema, isOpen, onClose, onSave, recordI
                           handleFieldChange(field.name, JSON.parse(e.target.value));
                           setError(null); // Clear error if JSON is valid
                         } catch (jsonErr) {
-                          setError(`Invalid JSON for ${field.label || field.name}`);
+                          setError(t('form.validation.json', { label: field.label || field.name }));
                         }
                       }}
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mt-1 min-h-[80px]"
@@ -212,10 +214,10 @@ export default function DataInputForm({ schema, isOpen, onClose, onSave, recordI
 
           <div className="flex justify-end space-x-2">
             <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : 'Add Record'}
+              {loading ? t('form.submitting') : t('form.submit')}
             </Button>
           </div>
         </form>

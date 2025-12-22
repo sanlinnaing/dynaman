@@ -21,6 +21,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import DataInputForm from '@/components/DataInputForm';
+import { useLanguage } from '@/lib/i18n';
 
 interface SchemaField {
   name: string;
@@ -42,6 +43,7 @@ export default function DataExplorer() {
   const [loading, setLoading] = useState(false);
   const [showDataInputForm, setShowDataInputForm] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<any | null>(null);
+  const { t } = useLanguage();
   
   // Pagination
   const [page, setPage] = useState(0);
@@ -113,13 +115,13 @@ export default function DataExplorer() {
   }, [entity, page, pageSize, debouncedSearch, refreshTrigger]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this record?')) return;
+    if (!confirm(t('explorer.confirmDelete'))) return;
     try {
       await api.delete(`/data/${entity}/${id}`);
       setRefreshTrigger(prev => prev + 1);
     } catch (err) {
       console.error('Failed to delete record:', err);
-      alert('Failed to delete record');
+      alert(t('explorer.deleteError'));
     }
   };
 
@@ -147,7 +149,7 @@ export default function DataExplorer() {
       helper.accessor((row) => row._metadata?.created_at, { header: 'Created', id: 'created_at' }),
       helper.display({
         id: 'actions',
-        header: 'Actions',
+        header: t('explorer.actions'),
         cell: (info) => (
           <div className="flex gap-2">
             <Button variant="ghost" size="icon" onClick={() => {
@@ -163,7 +165,7 @@ export default function DataExplorer() {
         )
       })
     ];
-  }, [schema]);
+  }, [schema, t]);
 
   const table = useReactTable({
     data,
@@ -183,22 +185,22 @@ export default function DataExplorer() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">
-          {schema?.entity_name || entity} Explorer
+          {t('explorer.title', { entity: schema?.entity_name || entity })}
         </h1>
         <div className="flex items-center gap-2">
            <div className="relative">
              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
              <Input
                type="search"
-               placeholder="Search..."
+               placeholder={t('common.search')}
                className="pl-8 w-[200px] lg:w-[300px]"
                value={search}
                onChange={(e) => setSearch(e.target.value)}
              />
            </div>
-           <Button variant="outline" onClick={() => setRefreshTrigger((prev) => prev + 1)}>Refresh</Button>
+           <Button variant="outline" onClick={() => setRefreshTrigger((prev) => prev + 1)}>{t('common.refresh')}</Button>
            <Button onClick={() => setShowDataInputForm(true)} disabled={!schema}>
-              <PlusCircle className="mr-2 h-4 w-4" /> Add New Record
+              <PlusCircle className="mr-2 h-4 w-4" /> {t('explorer.addData')}
            </Button>
         </div>
       </div>
@@ -227,7 +229,7 @@ export default function DataExplorer() {
                  <TableCell colSpan={columns.length} className="h-24 text-center">
                     <div className="flex justify-center items-center gap-2">
                        <Loader2 className="h-4 w-4 animate-spin" />
-                       Loading...
+                       {t('common.loading')}
                     </div>
                  </TableCell>
                </TableRow>
@@ -247,7 +249,7 @@ export default function DataExplorer() {
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
+                  {t('explorer.noData')}
                 </TableCell>
               </TableRow>
             )}
@@ -263,16 +265,16 @@ export default function DataExplorer() {
           disabled={page === 0 || loading}
         >
           <ChevronLeft className="h-4 w-4 mr-2" />
-          Previous
+          {t('common.previous')}
         </Button>
-        <div className="text-sm font-medium">Page {page + 1}</div>
+        <div className="text-sm font-medium">{t('common.page', { page: String(page + 1) })}</div>
         <Button
           variant="outline"
           size="sm"
           onClick={() => setPage((p) => p + 1)}
           disabled={data.length < pageSize || loading}
         >
-          Next
+          {t('common.next')}
           <ChevronRight className="h-4 w-4 ml-2" />
         </Button>
       </div>

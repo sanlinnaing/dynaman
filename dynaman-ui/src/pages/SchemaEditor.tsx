@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import api from '@/lib/api';
 import { PlusCircle, Trash2 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
+import { useLanguage } from '@/lib/i18n';
 
 interface FieldConstraint {
   unique?: boolean;
@@ -31,6 +32,7 @@ export default function SchemaEditor() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [availableSchemas, setAvailableSchemas] = useState<string[]>([]);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const fetchAvailableSchemas = async () => {
@@ -180,7 +182,7 @@ export default function SchemaEditor() {
 
   const handleDelete = async () => {
     if (!entity) return;
-    if (!window.confirm(`Are you sure you want to delete schema '${entity}'? This action cannot be undone.`)) {
+    if (!window.confirm(t('schema.editor.confirmDelete', { entity }))) {
       return;
     }
 
@@ -201,25 +203,25 @@ export default function SchemaEditor() {
     <div className="space-y-6 max-w-2xl mx-auto">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold tracking-tight">
-          {entity ? `Edit Schema: ${entity}` : 'Create New Schema'}
+          {entity ? t('schema.editor.title.edit', { entity }) : t('schema.editor.title.create')}
         </h1>
         {entity && (
             <Button variant="destructive" onClick={handleDelete} disabled={loading}>
-                <Trash2 className="mr-2 h-4 w-4" /> Delete Schema
+                <Trash2 className="mr-2 h-4 w-4" /> {t('schema.editor.delete')}
             </Button>
         )}
       </div>
 
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-          <strong className="font-bold">Error!</strong>
+          <strong className="font-bold">{t('common.error')}!</strong>
           <span className="block sm:inline"> {error}</span>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <Label htmlFor="entity_name" className="block text-sm font-medium text-gray-700">Schema Name</Label>
+          <Label htmlFor="entity_name" className="block text-sm font-medium text-gray-700">{t('schema.editor.name')}</Label>
           <Input
             id="entity_name"
             type="text"
@@ -232,11 +234,11 @@ export default function SchemaEditor() {
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Fields</h2>
+          <h2 className="text-xl font-semibold">{t('schema.editor.fields')}</h2>
           {schema.fields.map((field, index) => (
             <div key={index} className="grid grid-cols-1 md:grid-cols-6 gap-2 items-end border p-4 rounded-md">
               <div className="col-span-2 space-y-1">
-                <Label htmlFor={`field-name-${index}`} className="text-sm font-medium text-gray-700">Field Name</Label>
+                <Label htmlFor={`field-name-${index}`} className="text-sm font-medium text-gray-700">{t('schema.editor.fieldName')}</Label>
                 <Input
                   id={`field-name-${index}`}
                   name="name"
@@ -248,7 +250,7 @@ export default function SchemaEditor() {
                 />
               </div>
               <div className="col-span-2 space-y-1">
-                <Label htmlFor={`field-label-${index}`} className="text-sm font-medium text-gray-700">Label (Optional)</Label>
+                <Label htmlFor={`field-label-${index}`} className="text-sm font-medium text-gray-700">{t('schema.editor.label')}</Label>
                 <Input
                   id={`field-label-${index}`}
                   name="label"
@@ -260,7 +262,7 @@ export default function SchemaEditor() {
                 />
               </div>
               <div className="space-y-1">
-                <Label htmlFor={`field-type-${index}`} className="text-sm font-medium text-gray-700">Type</Label>
+                <Label htmlFor={`field-type-${index}`} className="text-sm font-medium text-gray-700">{t('schema.editor.type')}</Label>
                 <select
                   id={`field-type-${index}`}
                   name="field_type"
@@ -289,7 +291,7 @@ export default function SchemaEditor() {
                    onChange={(e) => handleFieldChange(index, e)}
                    className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
                  />
-                 <Label htmlFor={`field-is-reference-${index}`} className="ml-2 text-sm text-gray-700">Is Reference?</Label>
+                 <Label htmlFor={`field-is-reference-${index}`} className="ml-2 text-sm text-gray-700">{t('schema.editor.isReference')}</Label>
                 </div>
                 {field.reference_target && (
                   <select
@@ -299,7 +301,7 @@ export default function SchemaEditor() {
                     onChange={(e) => handleFieldChange(index, e)}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mt-2"
                   >
-                    <option value="">Select Referenced Schema</option>
+                    <option value="">{t('schema.editor.referenceTarget')}</option>
                     {availableSchemas.map((schemaName) => (
                       <option key={schemaName} value={schemaName}>
                         {schemaName}
@@ -317,7 +319,7 @@ export default function SchemaEditor() {
                    onChange={(e) => handleFieldChange(index, e)}
                    className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
                  />
-                 <Label htmlFor={`field-required-${index}`} className="ml-2 text-sm text-gray-700">Required</Label>
+                 <Label htmlFor={`field-required-${index}`} className="ml-2 text-sm text-gray-700">{t('schema.editor.required')}</Label>
                 </div>
 
                 {/* Unique Checkbox */}
@@ -330,7 +332,7 @@ export default function SchemaEditor() {
                    onChange={(e) => handleFieldChange(index, e)}
                    className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
                  />
-                 <Label htmlFor={`field-unique-${index}`} className="ml-2 text-sm text-gray-700">Unique</Label>
+                 <Label htmlFor={`field-unique-${index}`} className="ml-2 text-sm text-gray-700">{t('schema.editor.unique')}</Label>
                 </div>
               </div>
 
@@ -342,12 +344,12 @@ export default function SchemaEditor() {
             </div>
           ))}
           <Button type="button" variant="outline" onClick={handleAddField} className="w-full">
-            <PlusCircle className="mr-2 h-4 w-4" /> Add Field
+            <PlusCircle className="mr-2 h-4 w-4" /> {t('schema.editor.addField')}
           </Button>
         </div>
 
         <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? 'Saving...' : 'Save Schema'}
+          {loading ? t('schema.editor.saving') : t('schema.editor.save')}
         </Button>
       </form>
     </div>

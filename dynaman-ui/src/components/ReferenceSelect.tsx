@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import api from '@/lib/api';
+import { useLanguage } from '@/lib/i18n';
 
 interface ReferenceSelectProps {
   entityName: string; // The entity name this field references
@@ -30,6 +31,7 @@ export default function ReferenceSelect({
   const [options, setOptions] = useState<ReferencedRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   // Debounce search term
   useEffect(() => {
@@ -68,7 +70,7 @@ export default function ReferenceSelect({
         })));
       } catch (err: any) {
         console.error(`Failed to fetch options for ${entityName}:`, err);
-        let errorMessage = `Failed to load ${entityName} options.`;
+        let errorMessage = t('common.loadError', { entity: entityName });
         if (err.response && err.response.data) {
           if (typeof err.response.data === 'string') {
             errorMessage = err.response.data;
@@ -91,7 +93,7 @@ export default function ReferenceSelect({
     };
 
     fetchOptions();
-  }, [entityName, debouncedSearchTerm]);
+  }, [entityName, debouncedSearchTerm, t]);
 
   const handleSelectChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     onChange(e.target.value);
@@ -103,7 +105,7 @@ export default function ReferenceSelect({
       {error && <p className="text-red-500 text-sm font-medium border border-red-500 p-2 rounded">{error}</p>}
       <Input
         type="text"
-        placeholder={`Search ${entityName}...`}
+        placeholder={t('common.searchEntity', { entity: entityName })}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="mb-2"
@@ -116,9 +118,9 @@ export default function ReferenceSelect({
         disabled={loading || !!error} // Disable if loading or error
         required={required}
       >
-        <option value="">{placeholder || `Select a ${entityName}`}</option> {/* Not disabled, allows clear selection */}
-        {loading && <option value="" disabled>Loading options...</option>}
-        {!loading && !error && options.length === 0 && <option value="" disabled>No results found. {entityName && `Create new ${entityName} records first.`}</option>}
+        <option value="">{placeholder || t('common.selectEntity', { entity: entityName })}</option> {/* Not disabled, allows clear selection */}
+        {loading && <option value="" disabled>{t('common.loadingOptions')}</option>}
+        {!loading && !error && options.length === 0 && <option value="" disabled>{t('common.noEntityResults', { entity: entityName })}</option>}
         {options.map((option) => (
           <option key={option.id} value={option.id}>
             {option.displayName}
