@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from api.v1.router_metadata import router as metadata_router
 from api.v1.router_execution import router as execution_router
+from building_blocks.config import settings
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -20,7 +21,7 @@ async def lifespan(app: FastAPI):
     # on shutdown
     disconnect_db()
 
-app = FastAPI(title="Dyna Management Tool", lifespan=lifespan)
+app = FastAPI(title=f"Dyna Management Tool - {settings.app_mode.capitalize()}", lifespan=lifespan)
 
 # CORS Configuration
 origins = [
@@ -37,9 +38,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include Versioned Routers
-app.include_router(metadata_router)
-app.include_router(execution_router)
+# Include Versioned Routers based on APP_MODE
+if settings.app_mode in ["all", "metadata"]:
+    app.include_router(metadata_router)
+
+if settings.app_mode in ["all", "execution"]:
+    app.include_router(execution_router)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

@@ -17,14 +17,55 @@ services:
     ports:
       - "8081:8081"
     environment:
-      # This must match the service name 'mongodb' above
       - ME_CONFIG_MONGODB_SERVER=mongodb
       - ME_CONFIG_MONGODB_PORT=27017
-      # Default credentials to login to the web UI
       - ME_CONFIG_BASICAUTH_USERNAME=admin
       - ME_CONFIG_BASICAUTH_PASSWORD=pass
     depends_on:
       - mongodb
+
+  engine-metadata:
+    build: ./engine
+    container_name: dyna_engine_metadata
+    environment:
+      - APP_MODE=metadata
+      - MONGODB_URL=mongodb://mongodb:27017
+      - DATABASE_NAME=dynaman
+    depends_on:
+      - mongodb
+    restart: always
+
+  engine-execution:
+    build: ./engine
+    container_name: dyna_engine_execution
+    environment:
+      - APP_MODE=execution
+      - MONGODB_URL=mongodb://mongodb:27017
+      - DATABASE_NAME=dynaman
+    depends_on:
+      - mongodb
+    restart: always
+
+  api-gateway:
+    image: nginx:alpine
+    container_name: dyna_gateway
+    ports:
+      - "8000:80"
+    volumes:
+      - ./nginx-gateway.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - engine-metadata
+      - engine-execution
+    restart: always
+
+  dynaman-ui:
+    build: ./dynaman-ui
+    container_name: dyna_ui
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-gateway
+    restart: always
 
 volumes:
   mongo_data:

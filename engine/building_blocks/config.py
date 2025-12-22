@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     
     # App Configuration
     app_name: str = "Dyna Management Tool"
+    app_mode: str = "all" # Options: 'all', 'metadata', 'execution'
     debug: bool = False
     MAX_RECORDS_PER_PAGE: int = 50
 
