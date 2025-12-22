@@ -6,12 +6,17 @@ import api from '@/lib/api';
 import { PlusCircle, Trash2 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 
+interface FieldConstraint {
+  unique?: boolean;
+}
+
 interface SchemaField {
   name: string;
   field_type: string;
   label: string;
   is_required: boolean;
   reference_target?: string; // New property
+  constraints?: FieldConstraint;
 }
 
 interface Schema {
@@ -83,6 +88,15 @@ export default function SchemaEditor() {
             const { reference_target, ...rest } = newFields[index];
             newFields[index] = { ...rest, field_type: 'string' }; // Revert type to string
         }
+    } else if (name === 'is_unique') {
+        const currentConstraints = newFields[index].constraints || {};
+        newFields[index] = {
+            ...newFields[index],
+            constraints: {
+                ...currentConstraints,
+                unique: checked
+            }
+        };
     } else {
         newFields[index] = {
           ...newFields[index],
@@ -304,6 +318,19 @@ export default function SchemaEditor() {
                    className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
                  />
                  <Label htmlFor={`field-required-${index}`} className="ml-2 text-sm text-gray-700">Required</Label>
+                </div>
+
+                {/* Unique Checkbox */}
+                <div className="flex items-center mt-2">
+                 <input
+                   id={`field-unique-${index}`}
+                   name="is_unique"
+                   type="checkbox"
+                   checked={field.constraints?.unique || false}
+                   onChange={(e) => handleFieldChange(index, e)}
+                   className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                 />
+                 <Label htmlFor={`field-unique-${index}`} className="ml-2 text-sm text-gray-700">Unique</Label>
                 </div>
               </div>
 
