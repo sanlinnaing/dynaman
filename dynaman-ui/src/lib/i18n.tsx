@@ -59,6 +59,14 @@ const translations = {
     'common.loadingOptions': 'Loading options...',
     'common.noEntityResults': 'No results found. Create new {entity} records first.',
     'common.loadError': 'Failed to load {entity} options.',
+    'home.welcome': 'Welcome to Dynaman Admin',
+    'home.description': 'Manage your No-Code entities and data records. Select a schema from the sidebar to start exploring data.',
+    'home.schemas.title': 'Schemas',
+    'home.schemas.description': 'Define and manage your data models dynamically.',
+    'home.explorer.title': 'Data Explorer',
+    'home.explorer.description': 'View, search, and edit records for any entity.',
+    'home.api.title': 'API Ready',
+    'home.api.description': 'All data is instantly available via the execution API.',
   },
   ja: {
     'app.title': 'Dynaman',
@@ -115,6 +123,14 @@ const translations = {
     'common.loadingOptions': 'オプションを読み込み中...',
     'common.noEntityResults': '結果が見つかりません。先に新しい {entity} レコードを作成してください。',
     'common.loadError': '{entity} オプションの読み込みに失敗しました。',
+    'home.welcome': 'Dynaman 管理画面へようこそ',
+    'home.description': 'No-Code エンティティとデータレコードを管理します。サイドバーからスキーマを選択してデータの探索を開始してください。',
+    'home.schemas.title': 'スキーマ',
+    'home.schemas.description': 'データモデルを動的に定義および管理します。',
+    'home.explorer.title': 'データエクスプローラー',
+    'home.explorer.description': '任意のエンティティのレコードを表示、検索、編集します。',
+    'home.api.title': 'API 対応',
+    'home.api.description': 'すべてのデータは実行 API を介してすぐに利用可能です。',
   }
 };
 
