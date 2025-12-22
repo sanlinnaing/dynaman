@@ -1,5 +1,7 @@
 # Dynaman - Dynamic Schema PoC
 
+[日本語で読む](README.ja.md)
+
 **Dynaman** is a Proof of Concept (PoC) project designed to demonstrate the architecture and implementation of **unfixed, dynamic schemas**—a core pattern found in modern **NoCode/LowCode platforms**.
 
 Unlike traditional applications with hard-coded database models, Dynaman allows users to define data structures (Entities/Schemas) at runtime. The system dynamically generates validation logic and API endpoints to support these user-defined structures without requiring code changes or deployments.
