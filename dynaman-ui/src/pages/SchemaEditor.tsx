@@ -286,8 +286,8 @@ export default function SchemaEditor() {
               </div>
 
               {/* Reference Column */}
-              <div className="col-span-2 space-y-2 pt-1">
-                <div className="flex items-center">
+              <div className="col-span-2 space-y-1">
+                <div className="flex items-center h-[20px]"> {/* Fixed height to match Label */}
                  <input
                    id={`field-is-reference-${index}`}
                    name="is_reference"
@@ -296,9 +296,9 @@ export default function SchemaEditor() {
                    onChange={(e) => handleFieldChange(index, e)}
                    className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
                  />
-                 <Label htmlFor={`field-is-reference-${index}`} className="ml-2 text-sm text-gray-700">{t('schema.editor.isReference')}</Label>
+                 <Label htmlFor={`field-is-reference-${index}`} className="ml-2 text-sm text-gray-700 leading-none">{t('schema.editor.isReference')}</Label>
                 </div>
-                {field.reference_target && (
+                {field.reference_target ? (
                   <select
                     id={`field-ref-entity-name-${index}`}
                     name="reference_target"
@@ -313,6 +313,8 @@ export default function SchemaEditor() {
                       </option>
                     ))}
                   </select>
+                ) : (
+                    <div className="h-10"></div> /* Spacer to maintain alignment if select is hidden, though usually we want it hidden? User said "when click is referenced... selection box is shown". So when shown it needs to align. */
                 )}
               </div>
 
