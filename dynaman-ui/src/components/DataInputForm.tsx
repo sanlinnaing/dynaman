@@ -154,6 +154,14 @@ export default function DataInputForm({ schema, isOpen, onClose, onSave, recordI
                       onChange={(e) => handleFieldChange(field.name, e.target.value)}
                     />
                   )}
+                  {field.field_type === 'email' && (
+                    <Input
+                      id={`input-${field.name}`}
+                      type="email"
+                      value={formData[field.name] || ''}
+                      onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                    />
+                  )}
                   {field.field_type === 'number' && (
                     <Input
                       id={`input-${field.name}`}

@@ -258,6 +258,7 @@ export default function SchemaEditor() {
                   <option value="string">String</option>
                   <option value="number">Number</option>
                   <option value="boolean">Boolean</option>
+                  <option value="email">Email</option>
                   <option value="date">Date</option>
                   <option value="object">Object</option>
                 </select>
