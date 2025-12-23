@@ -61,6 +61,10 @@ export default function SchemaEditor() {
         }
       };
       fetchSchema();
+    } else {
+        // Reset form for "Create New" when navigating from Edit to Create
+        setSchema({ entity_name: '', fields: [] });
+        setError(null);
     }
   }, [entity]);
 
