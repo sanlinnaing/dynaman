@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import api from '@/lib/api';
@@ -25,9 +25,14 @@ interface Schema {
   fields: SchemaField[];
 }
 
+interface SchemaEditorContext {
+  refreshSchemas: () => void;
+}
+
 export default function SchemaEditor() {
   const { entity } = useParams<{ entity: string }>();
   const navigate = useNavigate();
+  const { refreshSchemas } = useOutletContext<SchemaEditorContext>() || {};
   const [schema, setSchema] = useState<Schema>({ entity_name: '', fields: [] });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -157,6 +162,7 @@ export default function SchemaEditor() {
         // Create new schema
         await api.post('/schemas/', schema);
       }
+      if (refreshSchemas) refreshSchemas(); // Refresh sidebar
       navigate('/'); // Navigate to home or dashboard
     } catch (err: any) {
       console.error('Failed to save schema:', err);
@@ -194,6 +200,7 @@ export default function SchemaEditor() {
     setError(null);
     try {
       await api.delete(`/schemas/${entity}`);
+      if (refreshSchemas) refreshSchemas(); // Refresh sidebar
       navigate('/'); // Navigate to home after deletion
     } catch (err: any) {
        console.error('Failed to delete schema:', err);

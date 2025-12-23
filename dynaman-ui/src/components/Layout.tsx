@@ -105,7 +105,7 @@ export default function DashboardLayout() {
             <span className="ml-2 font-bold">{t('app.title')}</span>
         </header>
         <div className="flex-1 overflow-auto p-6">
-          <Outlet />
+          <Outlet context={{ refreshSchemas: fetchSchemas }} />
         </div>
       </main>
     </div>
