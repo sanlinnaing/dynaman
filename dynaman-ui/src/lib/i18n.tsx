@@ -1,5 +1,6 @@
 import { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
+import { getCookie, setCookie } from './utils';
 
 type Language = 'en' | 'ja';
 
@@ -144,8 +145,18 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+const COOKIE_NAME = 'dynaman_language';
+
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguageState] = useState<Language>(() => {
+    const saved = getCookie(COOKIE_NAME);
+    return (saved === 'en' || saved === 'ja') ? saved : 'en';
+  });
+
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    setCookie(COOKIE_NAME, lang, 365);
+  };
 
   const t = (key: TranslationKey, params?: Record<string, string>) => {
     let text = translations[language][key] || key;
