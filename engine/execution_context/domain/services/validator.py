@@ -28,18 +28,16 @@ def build_pydantic_validator(schema_entity: SchemaEntity) -> Type[BaseModel]:
             if "enum_list" in field_args:
                 del field_args["enum_list"]
 
-        # Apply constraints using Annotated if field_args are present
-        if field_args:
-            # If default is provided, it should be the second argument in the tuple
-            # If no default, the field is required
-            if field_def.default is not None:
-                fields[field_def.name] = (Annotated[pydantic_type, Field(**field_args)], field_def.default)
-            else:
-                fields[field_def.name] = (Annotated[pydantic_type, Field(**field_args)], ...)
-        elif field_def.default is not None:
-            fields[field_def.name] = (pydantic_type, field_def.default)
+        # Determine default value and modify type if optional
+        if field_def.default is not None:
+            default_value = field_def.default
+        elif not field_def.is_required:
+            default_value = None
+            pydantic_type = Optional[pydantic_type]
         else:
-            fields[field_def.name] = (pydantic_type, ...) # Required field, no default
+            default_value = ...
+
+        fields[field_def.name] = (pydantic_type, Field(default=default_value, **field_args))
             
     # Add _metadata field
     fields["metadata"] = (Optional[RecordMetadata], Field(default=None, alias="_metadata"))

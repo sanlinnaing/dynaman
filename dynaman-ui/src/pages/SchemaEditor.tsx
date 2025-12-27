@@ -9,6 +9,11 @@ import { useLanguage } from '@/lib/i18n';
 
 interface FieldConstraint {
   unique?: boolean;
+  min_value?: number;
+  max_value?: number;
+  min_length?: number;
+  max_length?: number;
+  regex_pattern?: string;
 }
 
 interface SchemaField {
@@ -16,6 +21,7 @@ interface SchemaField {
   field_type: string;
   label: string;
   is_required: boolean;
+  default?: any;
   reference_target?: string; // New property
   constraints?: FieldConstraint;
 }
@@ -96,7 +102,7 @@ export default function SchemaEditor() {
         if (checked) {
             newFields[index] = { ...newFields[index], reference_target: availableSchemas.length > 0 ? availableSchemas[0] : undefined, field_type: 'string' };
         } else {
-            const { reference_target, ...rest } = newFields[index];
+            const { reference_target: _, ...rest } = newFields[index];
             newFields[index] = { ...rest, field_type: 'string' }; // Revert type to string
         }
     } else if (name === 'is_unique') {
@@ -115,6 +121,29 @@ export default function SchemaEditor() {
         };
     }
 
+    setSchema((prev) => ({ ...prev, fields: newFields }));
+  };
+
+  const handleConstraintChange = (
+    index: number,
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const { name, value, type } = e.target;
+    const newFields = [...schema.fields];
+    const currentConstraints = newFields[index].constraints || {};
+    
+    let parsedValue: any = value;
+    if (type === 'number') {
+        parsedValue = value === '' ? undefined : Number(value);
+    }
+
+    newFields[index] = {
+      ...newFields[index],
+      constraints: {
+        ...currentConstraints,
+        [name]: parsedValue,
+      },
+    };
     setSchema((prev) => ({ ...prev, fields: newFields }));
   };
 
@@ -362,6 +391,94 @@ export default function SchemaEditor() {
                   <Trash2 className="h-4 w-4 text-red-500" />
                 </Button>
               </div>
+
+              {/* Advanced Options (Default & Constraints) */}
+              <details className="col-span-12 mt-2 pt-2 border-t">
+                  <summary className="text-sm text-muted-foreground cursor-pointer hover:text-foreground select-none">
+                      {t('schema.editor.constraints') || 'Advanced Options'}
+                  </summary>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-2 p-2 bg-muted/20 rounded">
+                      {/* Default Value */}
+                      <div className="space-y-1">
+                          <Label htmlFor={`field-default-${index}`} className="text-xs">{t('schema.editor.defaultValue')}</Label>
+                          <Input
+                              id={`field-default-${index}`}
+                              name="default"
+                              type={field.field_type === 'number' ? 'number' : 'text'}
+                              value={field.default || ''}
+                              onChange={(e) => handleFieldChange(index, e)}
+                              className="h-8"
+                          />
+                      </div>
+                      
+                      {/* Number Constraints */}
+                      {field.field_type === 'number' && (
+                          <>
+                              <div className="space-y-1">
+                                  <Label htmlFor={`field-min-value-${index}`} className="text-xs">{t('schema.editor.minValue')}</Label>
+                                  <Input
+                                      id={`field-min-value-${index}`}
+                                      name="min_value"
+                                      type="number"
+                                      value={field.constraints?.min_value ?? ''}
+                                      onChange={(e) => handleConstraintChange(index, e)}
+                                      className="h-8"
+                                  />
+                              </div>
+                              <div className="space-y-1">
+                                  <Label htmlFor={`field-max-value-${index}`} className="text-xs">{t('schema.editor.maxValue')}</Label>
+                                  <Input
+                                      id={`field-max-value-${index}`}
+                                      name="max_value"
+                                      type="number"
+                                      value={field.constraints?.max_value ?? ''}
+                                      onChange={(e) => handleConstraintChange(index, e)}
+                                      className="h-8"
+                                  />
+                              </div>
+                          </>
+                      )}
+
+                      {/* String Constraints */}
+                      {(field.field_type === 'string' || field.field_type === 'email') && (
+                          <>
+                              <div className="space-y-1">
+                                  <Label htmlFor={`field-min-length-${index}`} className="text-xs">{t('schema.editor.minLength')}</Label>
+                                  <Input
+                                      id={`field-min-length-${index}`}
+                                      name="min_length"
+                                      type="number"
+                                      value={field.constraints?.min_length ?? ''}
+                                      onChange={(e) => handleConstraintChange(index, e)}
+                                      className="h-8"
+                                  />
+                              </div>
+                              <div className="space-y-1">
+                                  <Label htmlFor={`field-max-length-${index}`} className="text-xs">{t('schema.editor.maxLength')}</Label>
+                                  <Input
+                                      id={`field-max-length-${index}`}
+                                      name="max_length"
+                                      type="number"
+                                      value={field.constraints?.max_length ?? ''}
+                                      onChange={(e) => handleConstraintChange(index, e)}
+                                      className="h-8"
+                                  />
+                              </div>
+                              <div className="space-y-1">
+                                  <Label htmlFor={`field-regex-${index}`} className="text-xs">{t('schema.editor.regex')}</Label>
+                                  <Input
+                                      id={`field-regex-${index}`}
+                                      name="regex_pattern"
+                                      type="text"
+                                      value={field.constraints?.regex_pattern || ''}
+                                      onChange={(e) => handleConstraintChange(index, e)}
+                                      className="h-8"
+                                  />
+                              </div>
+                          </>
+                      )}
+                  </div>
+              </details>
             </div>
           ))}
           <Button type="button" variant="outline" onClick={handleAddField} className="w-full">
