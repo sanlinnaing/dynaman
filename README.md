@@ -16,12 +16,21 @@ The primary goal is to showcase how to handle **User-Defined Requirements** wher
 
 ## 🛠 Tech Stack
 
-### Backend (`/engine`)
+### Backend Core (`/engine`)
 *   **Language**: Python 3.13+
 *   **Framework**: [FastAPI](https://fastapi.tiangolo.com/) (Async web framework)
 *   **Database Driver**: [Motor](https://motor.readthedocs.io/) (Async MongoDB driver)
 *   **Validation**: [Pydantic](https://docs.pydantic.dev/) (Dynamic model creation)
-*   **Architecture**: Clean Architecture / Domain-Driven Design (DDD) principles separating Metadata and Execution contexts.
+*   **Architecture**: Clean Architecture / Domain-Driven Design (DDD).
+
+### Authentication Service (`/auth-service`)
+*   **Language**: Python 3.13+
+*   **Framework**: FastAPI
+*   **Security**: JWT (JSON Web Tokens), Role-Based Access Control (RBAC)
+
+### Infrastructure
+*   **Containerization**: Docker & Docker Compose
+*   **Gateway**: Nginx (Reverse Proxy)
 
 ### Frontend (`/dynaman-ui`)
 *   **Framework**: [React](https://react.dev/) (with Vite)
@@ -41,22 +50,39 @@ The primary goal is to showcase how to handle **User-Defined Requirements** wher
 *   **Data Explorer**: Generic data grid to view, search, edit, and delete records for any entity.
 *   **Runtime Validation**: Robust data integrity checks based on user-defined rules (Required fields, Data types).
 
+## 🚧 Latest Implementation (Sprint 3)
+
+*   **Microservices Architecture**: Split system into `engine` (Core), `auth-service` (Identity), and `dynaman-ui`.
+*   **API Gateway**: Implemented **Nginx** reverse proxy to route traffic (`/api/v1/schemas` → engine metadata, `/api/v1/data` → engine execution, `/api/v1/auth` → auth-service).
+*   **Authentication & Security**:
+    *   Dedicated **Auth Service** handling Login and Token management.
+    *   **JWT** (JSON Web Token) implementation for secure stateless auth.
+    *   **RBAC** (Role-Based Access Control) with roles: `SYSTEM_ADMIN`, `USER_ADMIN`, `USER`.
+*   **Docker Integration**: Full `docker-compose.yml` setup for orchestrating services.
+
 ## 📂 Project Structure
 
 ```
 dynaman/
-├── engine/                 # Python Backend
+├── auth-service/           # [NEW] Authentication Microservice
+│   ├── api/                # Auth Routes
+│   ├── domain/             # User Entities & Security Logic
+│   └── main.py             # Auth Entry point
+│
+├── engine/                 # Python Backend (Core)
 │   ├── api/                # FastAPI Routers
-│   ├── building_blocks/    # Shared kernel/utils
 │   ├── execution_context/  # Handling runtime Data Records
 │   ├── metadata_context/   # Handling Schema definitions
 │   └── main.py             # Entry point
 │
-└── dynaman-ui/             # React Frontend
-    ├── src/
-    │   ├── components/     # UI Components (Forms, Layouts)
-    │   ├── pages/          # Application Views (Schema Editor, Explorer)
-    │   └── lib/            # Utilities (API client)
+├── dynaman-ui/             # React Frontend
+│   ├── src/
+│   │   ├── components/     # UI Components
+│   │   ├── pages/          # Application Views
+│   │   └── context/        # [NEW] AuthContext
+│
+├── docker-compose.yml      # [NEW] Container Orchestration
+└── nginx-gateway.conf      # [NEW] API Gateway Config
 ```
 
 ## 🚀 Getting Started

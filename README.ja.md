@@ -16,12 +16,21 @@
 
 ## 🛠 技術スタック
 
-### バックエンド (`/engine`)
+### バックエンド・コア (`/engine`)
 *   **言語**: Python 3.13+
 *   **フレームワーク**: [FastAPI](https://fastapi.tiangolo.com/) (非同期 Web フレームワーク)
 *   **データベースドライバ**: [Motor](https://motor.readthedocs.io/) (非同期 MongoDB ドライバ)
 *   **バリデーション**: [Pydantic](https://docs.pydantic.dev/) (動的モデル作成)
-*   **アーキテクチャ**: メタデータと実行コンテキストを分離したクリーンアーキテクチャ / ドメイン駆動設計 (DDD) の原則。
+*   **アーキテクチャ**: クリーンアーキテクチャ / ドメイン駆動設計 (DDD)。
+
+### 認証サービス (`/auth-service`)
+*   **言語**: Python 3.13+
+*   **フレームワーク**: FastAPI
+*   **セキュリティ**: JWT (JSON Web Tokens), ロールベースアクセス制御 (RBAC)
+
+### インフラストラクチャ
+*   **コンテナ化**: Docker & Docker Compose
+*   **ゲートウェイ**: Nginx (リバースプロキシ)
 
 ### フロントエンド (`/dynaman-ui`)
 *   **フレームワーク**: [React](https://react.dev/) (with Vite)
@@ -41,22 +50,39 @@
 *   **データエクスプローラー**: 任意のエンティティのレコードを表示、検索、編集、削除するための汎用データグリッド。
 *   **実行時バリデーション**: ユーザー定義のルール（必須フィールド、データ型）に基づいた堅牢なデータ整合性チェック。
 
+## 🚧 最新の実装 (Sprint 3)
+
+*   **マイクロサービスアーキテクチャ**: システムを `engine` (コア)、`auth-service` (ID管理)、`dynaman-ui` に分割しました。
+*   **API ゲートウェイ**: **Nginx** リバースプロキシを実装し、トラフィックをルーティングします (`/api/v1/schemas` → engine metadata, `/api/v1/data` → engine execution, `/api/v1/auth` → auth-service)。
+*   **認証とセキュリティ**:
+    *   ログインとトークン管理を行う専用の **Auth Service**。
+    *   セキュアなステートレス認証のための **JWT** (JSON Web Token) 実装。
+    *   **RBAC** (ロールベースアクセス制御) の実装。ロール: `SYSTEM_ADMIN`, `USER_ADMIN`, `USER`。
+*   **Docker 統合**: サービスのオーケストレーションのための完全な `docker-compose.yml` セットアップ。
+
 ## 📂 プロジェクト構成
 
 ```
 dynaman/
-├── engine/                 # Python バックエンド
+├── auth-service/           # [NEW] 認証マイクロサービス
+│   ├── api/                # Auth ルーター
+│   ├── domain/             # ユーザーエンティティ & セキュリティロジック
+│   └── main.py             # Auth エントリーポイント
+│
+├── engine/                 # Python バックエンド (コア)
 │   ├── api/                # FastAPI ルーター
-│   ├── building_blocks/    # 共有カーネル/ユーティリティ
 │   ├── execution_context/  # 実行時データレコードの処理
 │   ├── metadata_context/   # スキーマ定義の処理
 │   └── main.py             # エントリーポイント
 │
-└── dynaman-ui/             # React フロントエンド
-    ├── src/
-    │   ├── components/     # UI コンポーネント (フォーム, レイアウト)
-    │   ├── pages/          # アプリケーションビュー (スキーマエディタ, エクスプローラー)
-    │   └── lib/            # ユーティリティ (API クライアント)
+├── dynaman-ui/             # React フロントエンド
+│   ├── src/
+│   │   ├── components/     # UI コンポーネント
+│   │   ├── pages/          # アプリケーションビュー
+│   │   └── context/        # [NEW] AuthContext
+│
+├── docker-compose.yml      # [NEW] コンテナオーケストレーション
+└── nginx-gateway.conf      # [NEW] API ゲートウェイ設定
 ```
 
 ## 🚀 始め方
