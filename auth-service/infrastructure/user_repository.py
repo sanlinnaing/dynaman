@@ -12,6 +12,16 @@ class UserRepository:
             return User(**user_doc)
         return None
 
+    async def get_by_id(self, user_id: str):
+        try:
+            oid = ObjectId(user_id)
+        except Exception:
+            return None
+        user_doc = await self.collection.find_one({"_id": oid})
+        if user_doc:
+            return User(**user_doc)
+        return None
+
     async def create(self, user: User):
         user_dict = user.model_dump(by_alias=True, exclude={"id"})
         result = await self.collection.insert_one(user_dict)

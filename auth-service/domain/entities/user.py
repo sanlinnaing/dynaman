@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field, BeforeValidator
+from pydantic import BaseModel, EmailStr, Field, BeforeValidator, ConfigDict
 from typing import Optional, Annotated
 from bson import ObjectId
 from enum import Enum
@@ -19,10 +19,11 @@ class User(BaseModel):
     role: UserRole = UserRole.USER
     provider: str = "local" # local, google, etc.
     
-    class Config:
-        populate_by_name = True
-        arbitrary_types_allowed = True
-        json_encoders = {ObjectId: str}
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+        json_encoders={ObjectId: str}
+    )
 
 class UserCreate(BaseModel):
     email: EmailStr
