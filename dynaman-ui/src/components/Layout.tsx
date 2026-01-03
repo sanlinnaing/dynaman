@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Table as TableIcon, LayoutDashboard, Menu, PlusCircle, Globe } from 'lucide-react';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Table as TableIcon, LayoutDashboard, Menu, PlusCircle, Globe, LogOut, Users } from 'lucide-react';
 import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/lib/i18n';
+import { useAuth } from '@/context/AuthContext';
 
 export default function DashboardLayout() {
   const [schemas, setSchemas] = useState<string[]>([]);
   const location = useLocation();
+  const navigate = useNavigate();
   const { t, language, setLanguage } = useLanguage();
+  const { logout, user } = useAuth();
 
   useEffect(() => {
     fetchSchemas();
@@ -22,6 +25,14 @@ export default function DashboardLayout() {
       console.error('Failed to fetch schemas', error);
     }
   };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  const isAdmin = user?.role === 'system_admin' || user?.role === 'user_admin';
+  const isSystemAdmin = user?.role === 'system_admin';
 
   return (
     <div className="flex h-screen bg-background text-foreground">
@@ -42,27 +53,39 @@ export default function DashboardLayout() {
                    {t('nav.dashboard')}
                 </Button>
              </Link>
-          </div>
-
-          <div className="mb-4">
-             <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">{t('nav.schemaManagement')}</h2>
-             <Link to="/schemas/new">
-                <Button variant={location.pathname === '/schemas/new' ? 'secondary' : 'ghost'} className="w-full justify-start">
-                   <PlusCircle className="mr-2 h-4 w-4" />
-                   {t('nav.createNew')}
-                </Button>
-             </Link>
-             <div className="space-y-1 mt-2">
-               {schemas.map((schema) => (
-                 <Link key={`edit-${schema}`} to={`/schemas/${schema}/edit`}>
-                    <Button variant={location.pathname === `/schemas/${schema}/edit` ? 'secondary' : 'ghost'} className="w-full justify-start pl-8 text-sm">
-                       <TableIcon className="mr-2 h-4 w-4" />
-                       {schema}
+             {isAdmin && (
+                 <Link to="/admin/users">
+                    <Button variant={location.pathname === '/admin/users' ? 'secondary' : 'ghost'} className="w-full justify-start mt-1">
+                       <Users className="mr-2 h-4 w-4" />
+                       User Management
                     </Button>
                  </Link>
-               ))}
-             </div>
+             )}
           </div>
+
+          {isSystemAdmin && (
+              <div className="mb-4">
+                 <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">{t('nav.schemaManagement')}</h2>
+                 <Link to="/schemas/new">
+                    <Button variant={location.pathname === '/schemas/new' ? 'secondary' : 'ghost'} className="w-full justify-start">
+                       <PlusCircle className="mr-2 h-4 w-4" />
+                       {t('nav.createNew')}
+                    </Button>
+                 </Link>
+                 <div className="space-y-1 mt-2">
+                   {schemas.map((schema) => (
+                     <div key={`edit-${schema}`}>
+                         <Link to={`/schemas/${schema}/edit`}>
+                            <Button variant={location.pathname === `/schemas/${schema}/edit` ? 'secondary' : 'ghost'} className="w-full justify-start pl-8 text-sm">
+                               <TableIcon className="mr-2 h-4 w-4" />
+                               {schema}
+                            </Button>
+                         </Link>
+                     </div>
+                   ))}
+                 </div>
+              </div>
+          )}
 
           <div>
              <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">{t('nav.dataExplorer')}</h2>
@@ -82,8 +105,8 @@ export default function DashboardLayout() {
           </div>
         </nav>
         
-        {/* Language Switcher */}
-        <div className="p-4 border-t">
+        {/* Language Switcher and Logout */}
+        <div className="p-4 border-t space-y-2">
             <div className="flex items-center gap-2">
                 <Globe className="h-4 w-4 text-muted-foreground" />
                 <select 
@@ -95,6 +118,10 @@ export default function DashboardLayout() {
                     <option value="ja">日本語</option>
                 </select>
             </div>
+            <Button variant="ghost" className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50" onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+            </Button>
         </div>
       </aside>
 
