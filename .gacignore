@@ -23,3 +23,6 @@ build/
 dynaman-ui/node_modules/
 dynaman-ui/dist/
 dynaman-ui/.vite/
+
+# Pytest Cache
+**/.pytest_cache/
