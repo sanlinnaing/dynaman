@@ -86,11 +86,11 @@ export default function DataInputForm({ schema, isOpen, onClose, onSave, recordI
     try {
       if (recordId) {
         // Edit existing record
-        await api.put(`/data/${schema.entity_name}/${recordId}`, formData);
+        await api.put(`/api/v1/data/${schema.entity_name}/${recordId}`, formData);
       } else {
         // Create new record
         // The API expects the fields at the root level
-        await api.post(`/data/${schema.entity_name}`, formData);
+        await api.post(`/api/v1/data/${schema.entity_name}`, formData);
       }
       onSave(); // Notify parent to refresh data
       onClose(); // Close the form

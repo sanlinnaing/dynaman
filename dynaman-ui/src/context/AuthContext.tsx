@@ -25,7 +25,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchUser = async () => {
     try {
-      const response = await api.get('/auth/me');
+      const response = await api.get('/api/v1/auth/me');
       setUser(response.data);
       setIsAuthenticated(true);
     } catch (error) {

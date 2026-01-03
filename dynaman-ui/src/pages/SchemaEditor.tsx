@@ -48,7 +48,7 @@ export default function SchemaEditor() {
   useEffect(() => {
     const fetchAvailableSchemas = async () => {
       try {
-        const response = await api.get('/schemas/');
+        const response = await api.get('/api/v1/schemas/');
         setAvailableSchemas(response.data);
       } catch (err) {
         console.error('Failed to fetch available schemas:', err);
@@ -62,7 +62,7 @@ export default function SchemaEditor() {
         setLoading(true);
         setError(null);
         try {
-          const response = await api.get(`/schemas/${entity}`);
+          const response = await api.get(`/api/v1/schemas/${entity}`);
           setSchema(response.data);
         } catch (err) {
           console.error('Failed to fetch schema:', err);
@@ -186,10 +186,10 @@ export default function SchemaEditor() {
     try {
       if (entity) {
         // Update existing schema
-        await api.put(`/schemas/${entity}`, schema);
+        await api.put(`/api/v1/schemas/${entity}`, schema);
       } else {
         // Create new schema
-        await api.post('/schemas/', schema);
+        await api.post('/api/v1/schemas/', schema);
       }
       if (refreshSchemas) refreshSchemas(); // Refresh sidebar
       navigate('/'); // Navigate to home or dashboard
@@ -228,7 +228,7 @@ export default function SchemaEditor() {
     setLoading(true);
     setError(null);
     try {
-      await api.delete(`/schemas/${entity}`);
+      await api.delete(`/api/v1/schemas/${entity}`);
       if (refreshSchemas) refreshSchemas(); // Refresh sidebar
       navigate('/'); // Navigate to home after deletion
     } catch (err: any) {

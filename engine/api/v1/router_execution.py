@@ -5,7 +5,7 @@ from api.dependencies import get_record_use_case, verify_token
 from building_blocks.errors import DomainError # New import
 from building_blocks.errors import StructuredErrorResponse, ValidationErrorDetail # Also need to import these to properly construct the response detail
 
-router = APIRouter(prefix="/data", tags=["Execution (Runtime)"], dependencies=[Depends(verify_token)])
+router = APIRouter(prefix="/api/v1/data", tags=["Execution (Runtime)"], dependencies=[Depends(verify_token)])
 
 @router.post("/{entity_name}")
 async def add_data(

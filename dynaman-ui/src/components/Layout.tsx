@@ -19,7 +19,7 @@ export default function DashboardLayout() {
 
   const fetchSchemas = async () => {
     try {
-      const response = await api.get('/schemas/');
+      const response = await api.get('/api/v1/schemas/');
       setSchemas(response.data);
     } catch (error) {
       console.error('Failed to fetch schemas', error);

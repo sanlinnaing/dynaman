@@ -25,9 +25,11 @@ export const Login: React.FC = () => {
       const formData = new FormData();
       formData.append('username', email);
       formData.append('password', password);
-      
-      const response = await api.post('/auth/token', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
+
+      const response = await api.post('/api/v1/auth/token', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
       
       await login(response.data.access_token);

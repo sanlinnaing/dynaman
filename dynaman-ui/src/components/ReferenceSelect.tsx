@@ -51,17 +51,22 @@ export default function ReferenceSelect({
     const fetchOptions = async () => {
       setLoading(true);
       setError(null);
-      try {
-        let url = `/data/${entityName}`;
-        const params: { [key: string]: any } = { limit: 20 }; // Limit results to 20 for dropdown
-
-        if (debouncedSearchTerm) {
-          url = `/data/${entityName}/search`;
-          params.q = debouncedSearchTerm;
-        }
-
-        const response = await api.get(url, { params });
-        setOptions(response.data.map((item: any) => ({
+            try {
+              setLoading(true);
+              // We need to search or list. 
+              // If we want to show "Name" we need to know which field is representative?
+              // For now, let's just list and show ID or first string field.
+              // Or we use the search endpoint if 'search' is provided.
+              
+              let url = `/api/v1/data/${entityName}`;
+              const params: any = { limit: 20 };
+              
+              if (debouncedSearchTerm) {
+                url = `/api/v1/data/${entityName}/search`;
+                params.q = debouncedSearchTerm;
+              }
+      
+              const response = await api.get(url, { params });        setOptions(response.data.map((item: any) => ({
             id: item.id,
             // Attempt to find a display name, prefer 'name', 'title', or first string field in content
             displayName: item.content?.name || item.content?.title ||

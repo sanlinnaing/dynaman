@@ -72,7 +72,7 @@ export default function DataExplorer() {
     const fetchSchema = async () => {
       try {
         setLoading(true);
-        const res = await api.get(`/schemas/${entity}`);
+        const res = await api.get(`/api/v1/schemas/${entity}`);
         setSchema(res.data);
       } catch (err) {
         console.error('Error fetching schema:', err);
@@ -92,11 +92,11 @@ export default function DataExplorer() {
         const skip = page * pageSize;
         const limit = pageSize;
         
-        let url = `/data/${entity}`;
+        let url = `/api/v1/data/${entity}`;
         const params: any = { skip, limit };
 
         if (debouncedSearch) {
-          url = `/data/${entity}/search`;
+          url = `/api/v1/data/${entity}/search`;
           params.q = debouncedSearch;
         }
 
@@ -117,7 +117,7 @@ export default function DataExplorer() {
   const handleDelete = async (id: string) => {
     if (!confirm(t('explorer.confirmDelete'))) return;
     try {
-      await api.delete(`/data/${entity}/${id}`);
+      await api.delete(`/api/v1/data/${entity}/${id}`);
       setRefreshTrigger(prev => prev + 1);
     } catch (err) {
       console.error('Failed to delete record:', err);

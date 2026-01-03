@@ -3,7 +3,7 @@ from metadata_context.application.schema_use_cases import SchemaApplicationServi
 from metadata_context.domain.entities.schema import SchemaEntity, FieldDefinition
 from api.dependencies import get_schema_service, verify_token, require_system_admin
 
-router = APIRouter(prefix="/schemas", tags=["Metadata (Builder)"], dependencies=[Depends(verify_token)])
+router = APIRouter(prefix="/api/v1/schemas", tags=["Metadata (Builder)"], dependencies=[Depends(verify_token)])
 
 @router.get("/")
 async def list_schemas(service: SchemaApplicationService = Depends(get_schema_service)):

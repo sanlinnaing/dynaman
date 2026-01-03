@@ -1,7 +1,7 @@
 {
   "metadata_context": {
     "create_schema": {
-      "endpoint": "POST /schemas/",
+      "endpoint": "POST /api/v1/schemas/",
       "description": "Create a new 'Product' entity schema",
       "payload": {
         "entity_name": "Product",
@@ -32,7 +32,7 @@
       }
     },
     "add_field": {
-      "endpoint": "POST /schemas/Product/fields",
+      "endpoint": "POST /api/v1/schemas/Product/fields",
       "description": "Add 'category' field to Product",
       "payload": {
         "name": "category",
@@ -41,7 +41,7 @@
       }
     },
     "update_field": {
-      "endpoint": "PUT /schemas/Product/fields/price",
+      "endpoint": "PUT /api/v1/schemas/Product/fields/price",
       "description": "Update 'price' field constraints",
       "payload": {
         "name": "price",
@@ -53,7 +53,7 @@
       }
     },
     "partial_update_schema": {
-      "endpoint": "PATCH /schemas/Product",
+      "endpoint": "PATCH /api/v1/schemas/Product",
       "description": "Update description of Product entity",
       "payload": {
         "description": "Updated Product Catalogue"
@@ -62,7 +62,7 @@
   },
   "execution_context": {
     "create_record": {
-      "endpoint": "POST /data/Product",
+      "endpoint": "POST /api/v1/data/Product",
       "description": "Create a valid product record",
       "payload": {
         "sku": "PROD-001",
@@ -71,7 +71,7 @@
       }
     },
     "update_record": {
-      "endpoint": "PUT /data/Product/{record_id}",
+      "endpoint": "PUT /api/v1/data/Product/{record_id}",
       "description": "Update product price",
       "payload": {
         "sku": "PROD-001",
@@ -81,12 +81,12 @@
       }
     },
     "delete_record": {
-      "endpoint": "DELETE /data/Product/{record_id}",
+      "endpoint": "DELETE /api/v1/data/Product/{record_id}",
       "description": "Soft delete the product record",
       "payload": null
     },
     "duplicate_record": {
-      "endpoint": "POST /data/Product",
+      "endpoint": "POST /api/v1/data/Product",
       "description": "Attempt to create a duplicate product record",
       "payload": {
         "sku": "PROD-001",

@@ -33,7 +33,7 @@ export const AdminUsers: React.FC = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await api.get('/auth/users');
+      const response = await api.get('/api/v1/auth/users');
       setUsers(response.data);
     } catch (err) {
       console.error(err);
@@ -45,7 +45,7 @@ export const AdminUsers: React.FC = () => {
   const handleDelete = async (userId: string) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
-      await api.delete(`/auth/users/${userId}`);
+      await api.delete(`/api/v1/auth/users/${userId}`);
       setUsers(users.filter(u => u._id !== userId));
     } catch (err) {
       console.error(err);
@@ -64,7 +64,7 @@ export const AdminUsers: React.FC = () => {
           password: newUserPassword,
           role: newUserRole
       };
-      const response = await api.post('/auth/users', payload);
+      const response = await api.post('/api/v1/auth/users', payload);
       setUsers([...users, response.data]);
       setIsCreating(false);
       setSuccess(`User ${newUserEmail} created successfully.`);

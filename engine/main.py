@@ -22,15 +22,15 @@ async def lifespan(app: FastAPI):
     disconnect_db()
 
 # Include Versioned Routers based on APP_MODE
-docs_url = "/docs"
-openapi_url = "/openapi.json"
+docs_url = "/api/v1/docs"
+openapi_url = "/api/v1/openapi.json"
 
 if settings.app_mode == "metadata":
-    docs_url = "/schemas/docs"
-    openapi_url = "/schemas/openapi.json"
+    docs_url = "/api/v1/schemas/docs"
+    openapi_url = "/api/v1/schemas/openapi.json"
 elif settings.app_mode == "execution":
-    docs_url = "/data/docs"
-    openapi_url = "/data/openapi.json"
+    docs_url = "/api/v1/data/docs"
+    openapi_url = "/api/v1/data/openapi.json"
 
 app = FastAPI(
     title=f"Dyna Management Tool - {settings.app_mode.capitalize()}",
