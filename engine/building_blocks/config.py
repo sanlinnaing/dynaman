@@ -10,6 +10,10 @@ class Settings(BaseSettings):
     app_mode: str = "all" # Options: 'all', 'metadata', 'execution'
     debug: bool = False
     MAX_RECORDS_PER_PAGE: int = 50
+    
+    # Auth Configuration
+    secret_key: str = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
+    algorithm: str = "HS256"
 
     # Tell Pydantic to read from a .env file
     model_config = SettingsConfigDict(env_file=".env")

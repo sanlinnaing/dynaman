@@ -46,6 +46,17 @@ services:
       - mongodb
     restart: always
 
+  auth-service:
+    build: ./auth-service
+    container_name: dyna_auth_service
+    environment:
+      - MONGODB_URL=mongodb://mongodb:27017
+      - DATABASE_NAME=dynaman_auth
+      - SECRET_KEY=09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
+    depends_on:
+      - mongodb
+    restart: always
+
   api-gateway:
     image: nginx:alpine
     container_name: dyna_gateway
@@ -56,6 +67,7 @@ services:
     depends_on:
       - engine-metadata
       - engine-execution
+      - auth-service
     restart: always
 
   dynaman-ui:

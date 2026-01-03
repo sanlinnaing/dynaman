@@ -1,16 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException
 from metadata_context.application.schema_use_cases import SchemaApplicationService
 from metadata_context.domain.entities.schema import SchemaEntity, FieldDefinition
-from api.dependencies import get_schema_service
+from api.dependencies import get_schema_service, verify_token, require_system_admin
 
-router = APIRouter(prefix="/schemas", tags=["Metadata (Builder)"])
+router = APIRouter(prefix="/schemas", tags=["Metadata (Builder)"], dependencies=[Depends(verify_token)])
 
 @router.get("/")
 async def list_schemas(service: SchemaApplicationService = Depends(get_schema_service)):
     """List all available schemas"""
     return await service.list_all_entities()
 
-@router.post("/")
+@router.post("/", dependencies=[Depends(require_system_admin)])
 async def create_schema(schema: SchemaEntity, service: SchemaApplicationService = Depends(get_schema_service)):
     """Define a new No-Code Entity"""
     try:
@@ -27,7 +27,7 @@ async def get_schema(name: str, service: SchemaApplicationService = Depends(get_
         raise HTTPException(status_code=404, detail="Schema not found")
     return schema
 
-@router.post("/{name}/fields")
+@router.post("/{name}/fields", dependencies=[Depends(require_system_admin)])
 async def add_field(name: str, field: FieldDefinition, service: SchemaApplicationService = Depends(get_schema_service)):
     """Add a new field to an entity"""
     try:
@@ -36,7 +36,7 @@ async def add_field(name: str, field: FieldDefinition, service: SchemaApplicatio
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.delete("/{name}/fields/{field_name}")
+@router.delete("/{name}/fields/{field_name}", dependencies=[Depends(require_system_admin)])
 async def remove_field(name: str, field_name: str, service: SchemaApplicationService = Depends(get_schema_service)):
     """Remove a field from an entity"""
     try:
@@ -45,7 +45,7 @@ async def remove_field(name: str, field_name: str, service: SchemaApplicationSer
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.put("/{name}")
+@router.put("/{name}", dependencies=[Depends(require_system_admin)])
 async def update_schema(name: str, schema: SchemaEntity, service: SchemaApplicationService = Depends(get_schema_service)):
     """Update an entire entity definition"""
     try:
@@ -54,7 +54,7 @@ async def update_schema(name: str, schema: SchemaEntity, service: SchemaApplicat
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.patch("/{name}")
+@router.patch("/{name}", dependencies=[Depends(require_system_admin)])
 async def partial_update_schema(name: str, update_data: dict, service: SchemaApplicationService = Depends(get_schema_service)):
     """Partially update an entity definition"""
     try:
@@ -63,7 +63,7 @@ async def partial_update_schema(name: str, update_data: dict, service: SchemaApp
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.put("/{name}/fields/{field_name}")
+@router.put("/{name}/fields/{field_name}", dependencies=[Depends(require_system_admin)])
 async def update_field(name: str, field_name: str, field: FieldDefinition, service: SchemaApplicationService = Depends(get_schema_service)):
     """Update a specific field in an entity"""
     try:
@@ -72,7 +72,7 @@ async def update_field(name: str, field_name: str, field: FieldDefinition, servi
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.delete("/{name}")
+@router.delete("/{name}", dependencies=[Depends(require_system_admin)])
 async def delete_schema(name: str, service: SchemaApplicationService = Depends(get_schema_service)):
     """Delete an entire entity definition"""
     try:
