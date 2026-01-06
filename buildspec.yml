@@ -13,7 +13,7 @@ phases:
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=${COMMIT_HASH:=latest}
 
-      - echo "Running Tests..."
+      - echo "Running Tests (using mongomock)..."
       
       - echo "Testing Auth Service..."
       - cd auth-service
