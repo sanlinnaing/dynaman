@@ -43,3 +43,4 @@ build/
 *.tfstate.backup
 *.tfvars
 *.tfvars.json
+*.tfstate.lock.info
