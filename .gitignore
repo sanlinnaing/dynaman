@@ -36,3 +36,10 @@ build/
 
 # Gemini
 .gemini/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+*.tfvars.json

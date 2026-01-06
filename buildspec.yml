@@ -1,0 +1,76 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.12
+      nodejs: 22
+
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+
+      - echo "Running Tests..."
+      
+      - echo "Testing Auth Service..."
+      - cd auth-service
+      - pip install --upgrade pip
+      - pip install -r requirements.txt
+      - python -m pytest
+      - cd ..
+
+      - echo "Testing Engine Service..."
+      - cd engine
+      - pip install --upgrade pip
+      - pip install -r requirements.txt
+      - python -m pytest
+      - cd ..
+
+  build:
+    commands:
+      - echo Build started on `date`
+      
+      - echo Building UI image...
+      - cd dynaman-ui
+      - docker build -t $IMAGE_REPO_UI:latest .
+      - docker tag $IMAGE_REPO_UI:latest $IMAGE_REPO_UI:$IMAGE_TAG
+      - cd ..
+
+      - echo Building Auth image...
+      - cd auth-service
+      - docker build -t $IMAGE_REPO_AUTH:latest .
+      - docker tag $IMAGE_REPO_AUTH:latest $IMAGE_REPO_AUTH:$IMAGE_TAG
+      - cd ..
+
+      - echo Building Engine image...
+      - cd engine
+      - docker build -t $IMAGE_REPO_ENGINE:latest .
+      - docker tag $IMAGE_REPO_ENGINE:latest $IMAGE_REPO_ENGINE:$IMAGE_TAG
+      - cd ..
+
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker images...
+      - docker push $IMAGE_REPO_UI:latest
+      - docker push $IMAGE_REPO_UI:$IMAGE_TAG
+      - docker push $IMAGE_REPO_AUTH:latest
+      - docker push $IMAGE_REPO_AUTH:$IMAGE_TAG
+      - docker push $IMAGE_REPO_ENGINE:latest
+      - docker push $IMAGE_REPO_ENGINE:$IMAGE_TAG
+
+      - echo Writing image definitions file...
+      - printf '[{"name":"ui","imageUri":"%s"}]' $IMAGE_REPO_UI:$IMAGE_TAG > imagedefinitions_ui.json
+      - printf '[{"name":"auth","imageUri":"%s"}]' $IMAGE_REPO_AUTH:$IMAGE_TAG > imagedefinitions_auth.json
+      - printf '[{"name":"meta","imageUri":"%s"}]' $IMAGE_REPO_ENGINE:$IMAGE_TAG > imagedefinitions_meta.json
+      - printf '[{"name":"exec","imageUri":"%s"}]' $IMAGE_REPO_ENGINE:$IMAGE_TAG > imagedefinitions_exec.json
+
+artifacts:
+  files:
+    - imagedefinitions_ui.json
+    - imagedefinitions_auth.json
+    - imagedefinitions_meta.json
+    - imagedefinitions_exec.json
