@@ -9,7 +9,7 @@ from execution_context.domain.query_parser import parse_filters
 from building_blocks.types import FieldType
 from metadata_context.domain.entities.schema import SchemaEntity, FieldDefinition
 
-class TestSprint3(unittest.IsolatedAsyncioTestCase):
+class TestFeatureUnit(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.record_repo = AsyncMock()
         self.schema_repo = AsyncMock()
