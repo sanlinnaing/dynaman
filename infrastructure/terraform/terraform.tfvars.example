@@ -1,0 +1,8 @@
+aws_region        = "us-east-1"
+project_name      = "dynaman"
+environment       = "prod"
+github_repo_owner = "your-github-username"
+github_repo_name  = "dynaman"
+github_branch     = "main"
+mongodb_url       = "mongodb+srv://<user>:<password>@<cluster>.mongodb.net/?retryWrites=true&w=majority"
+jwt_secret_key    = "your-super-secret-key-change-me"
