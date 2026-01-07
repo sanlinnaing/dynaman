@@ -2,6 +2,42 @@
 
 This directory contains the Terraform configuration to deploy the Dynaman application to AWS ECS.
 
+## Architecture
+
+```mermaid
+graph TD
+    User((User)) -->|HTTPS| ALB(Application Load Balancer)
+    
+    subgraph "AWS Cloud (US-East-1)"
+        subgraph "VPC"
+            ALB -->|/| UI[Dynaman UI]
+            ALB -->|/api/v1/auth| Auth[Auth Service]
+            ALB -->|/api/v1/schemas| Meta[Engine: Metadata]
+            ALB -->|/api/v1/data| Exec[Engine: Execution]
+            
+            subgraph "ECS Cluster (EC2 Launch Type)"
+                subgraph "t4g.small (ARM64)"
+                    UI
+                    Auth
+                    Meta
+                    Exec
+                end
+            end
+        end
+        
+        subgraph "CI/CD Pipeline"
+            GitHub[GitHub Repo] -->|Webhook| CP[CodePipeline]
+            CP --> CB["CodeBuild (Tests & Build)"]
+            CB -->|Push Images| ECR[Amazon ECR]
+            CB -->|Deploy| ECS_Service[Update ECS Services]
+        end
+    end
+    
+    Auth -->|Connect| Atlas[(MongoDB Atlas)]
+    Meta -->|Connect| Atlas
+    Exec -->|Connect| Atlas
+```
+
 ## Prerequisites
 
 1.  **AWS CLI**: Installed and configured with `aws configure`.
@@ -16,11 +52,11 @@ This directory contains the Terraform configuration to deploy the Dynaman applic
     ```bash
     cp terraform/terraform.tfvars.example terraform/terraform.tfvars
     ```
-    Edit `terraform/terraform.tfvars` and fill in your details:
-    *   `mongodb_url`: Your Atlas connection string.
-    *   `jwt_secret_key`: A random string for security.
-    *   `github_repo_owner`: Your GitHub username.
-    *   `github_repo_name`: `dynaman` (or your repo name).
+    Edit `terraform/terraform.tfvars` and fill in your details (values must be in double quotes):
+    *   `mongodb_url`: "Your Atlas connection string"
+    *   `jwt_secret_key`: "A random string for security"
+    *   `github_repo_owner`: "Your GitHub username"
+    *   `github_repo_name`: "dynaman"
 
 ## Deployment (Start)
 
