@@ -1,5 +1,7 @@
 # Dynaman - Dynamic Schema PoC
 
+[![Python application](https://github.com/sanlinnaing/dynaman/actions/workflows/python-app.yml/badge.svg)](https://github.com/sanlinnaing/dynaman/actions/workflows/python-app.yml)
+
 [日本語で読む](README.ja.md)
 
 **Dynaman** is a Proof of Concept (PoC) project designed to demonstrate the architecture and implementation of **unfixed, dynamic schemas**—a core pattern found in modern **NoCode/LowCode platforms**.
@@ -31,6 +33,8 @@ The primary goal is to showcase how to handle **User-Defined Requirements** wher
 ### Infrastructure
 *   **Containerization**: Docker & Docker Compose
 *   **Gateway**: Nginx (Reverse Proxy)
+*   **IaC**: Terraform (Infrastructure as Code)
+*   **Cloud Provider**: AWS (ECS Fargate/EC2, ALB, ECR, CodePipeline)
 
 ### Frontend (`/dynaman-ui`)
 *   **Framework**: [React](https://react.dev/) (with Vite)
@@ -80,6 +84,10 @@ dynaman/
 │   │   ├── components/     # UI Components
 │   │   ├── pages/          # Application Views
 │   │   └── context/        # [NEW] AuthContext
+│
+├── infrastructure/         # [NEW] Terraform & AWS Configuration
+│   ├── terraform/          # IaC Definitions
+│   └── README.md           # Deployment Guide
 │
 ├── docker-compose.yml      # [NEW] Container Orchestration
 └── nginx-gateway.conf      # [NEW] API Gateway Config
