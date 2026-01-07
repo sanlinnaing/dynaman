@@ -12,3 +12,4 @@ email-validator
 python-jose[cryptography]
 mongomock
 mongomock-motor
+flake8
