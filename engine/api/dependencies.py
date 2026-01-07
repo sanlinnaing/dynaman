@@ -15,12 +15,12 @@ db = None
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 def connect_db():
+    # Use global variables to maintain a singleton database connection pool
     global client, db
     client = AsyncIOMotorClient(settings.mongodb_url)
     db = client[settings.database_name]
 
 def disconnect_db():
-    global client
     if client:
         client.close()
 
@@ -49,7 +49,6 @@ async def require_system_admin(current_user: dict = Depends(verify_token)):
     return current_user
 
 def get_record_use_case() -> RecordUseCase:
-    global db
     if db is None:
         connect_db()
         
@@ -61,7 +60,6 @@ def get_record_use_case() -> RecordUseCase:
     return RecordUseCase(record_repo, schema_repo)
 
 def get_schema_service() -> SchemaApplicationService:
-    global db
     if db is None:
         connect_db()
 
