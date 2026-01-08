@@ -1,6 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from building_blocks.config import settings
 from metadata_context.infrastructure.schema_repository import SchemaRepository
+from metadata_context.infrastructure.form_layout_repository import FormLayoutRepository
 from execution_context.infrastructure.record_repository import RecordRepository
 from execution_context.application.record_use_cases import RecordUseCase
 from metadata_context.application.schema_use_cases import SchemaApplicationService
@@ -34,9 +35,10 @@ async def verify_token(token: str = Depends(oauth2_scheme)):
         payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
         email: str = payload.get("sub")
         role: str = payload.get("role", "user") # Default to user if role not present
+        groups: list = payload.get("groups", [])
         if email is None:
             raise credentials_exception
-        return {"email": email, "role": role}
+        return {"email": email, "role": role, "groups": groups}
     except JWTError:
         raise credentials_exception
 
@@ -65,3 +67,10 @@ def get_schema_service() -> SchemaApplicationService:
 
     repo = SchemaRepository(db)
     return SchemaApplicationService(repo)
+
+def get_layout_repository() -> FormLayoutRepository:
+    if db is None:
+        connect_db()
+    return FormLayoutRepository(db)
+
+    

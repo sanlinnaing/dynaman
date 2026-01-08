@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from domain.entities.user import User, UserCreate, UserRole
+from domain.entities.user import User, UserCreate, UserUpdate, UserRole
 from application.auth_use_cases import AuthUseCases
 from infrastructure.user_repository import UserRepository
 from api.dependencies import get_user_repository, get_current_user
@@ -48,6 +48,37 @@ async def list_users(
     use_cases = AuthUseCases(user_repo)
     return await use_cases.list_users()
 
+@router.put("/users/{user_id}", response_model=User)
+async def update_user(
+    user_id: str,
+    user_in: UserUpdate,
+    user_repo: Annotated[UserRepository, Depends(get_user_repository)],
+    current_user: Annotated[User, Depends(get_current_user)]
+):
+    if current_user.role == UserRole.USER:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to update users"
+        )
+        
+    use_cases = AuthUseCases(user_repo)
+    target_user = await user_repo.get_by_id(user_id)
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    # Permission checks
+    if current_user.role == UserRole.USER_ADMIN:
+        if target_user.role == UserRole.SYSTEM_ADMIN:
+             raise HTTPException(status_code=403, detail="User Admins cannot update System Admins")
+        if user_in.role == UserRole.SYSTEM_ADMIN:
+             raise HTTPException(status_code=403, detail="User Admins cannot promote to System Admin")
+
+    updated_user = await use_cases.update_user(user_id, user_in)
+    if not updated_user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    return updated_user
+
 @router.delete("/users/{user_id}")
 async def delete_user(
     user_id: str,
@@ -90,5 +121,5 @@ async def login(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token = SecurityService.create_access_token(data={"sub": user.email, "role": user.role})
+    access_token = SecurityService.create_access_token(data={"sub": user.email, "role": user.role, "groups": user.group_ids})
     return {"access_token": access_token, "token_type": "bearer"}

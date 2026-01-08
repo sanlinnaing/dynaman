@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from api.v1.router_metadata import router as metadata_router
+from api.v1.router_layouts import router as layout_router
 from api.v1.router_execution import router as execution_router
 from building_blocks.config import settings
 
@@ -57,6 +58,7 @@ app.add_middleware(
 # Include Versioned Routers based on APP_MODE
 if settings.app_mode in ["all", "metadata"]:
     app.include_router(metadata_router)
+    app.include_router(layout_router, prefix="/api/v1/layouts", tags=["layouts"])
 
 if settings.app_mode in ["all", "execution"]:
     app.include_router(execution_router)

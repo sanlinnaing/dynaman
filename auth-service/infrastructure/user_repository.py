@@ -35,6 +35,22 @@ class UserRepository:
             users.append(User(**doc))
         return users
 
+    async def update(self, user_id: str, update_data: dict):
+        if not update_data:
+            return None
+        try:
+            oid = ObjectId(user_id)
+        except Exception:
+            return None
+            
+        result = await self.collection.update_one(
+            {"_id": oid},
+            {"$set": update_data}
+        )
+        if result.modified_count > 0 or result.matched_count > 0:
+            return await self.get_by_id(user_id)
+        return None
+
     async def delete(self, user_id: str):
         result = await self.collection.delete_one({"_id": ObjectId(user_id)})
         return result.deleted_count > 0

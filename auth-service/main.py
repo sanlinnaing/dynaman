@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from api.v1.router_auth import router as auth_router
+from api.v1.router_groups import router as groups_router
 from contextlib import asynccontextmanager
 from api.dependencies import get_user_repository, get_db
 from domain.entities.user import User, UserRole
@@ -52,3 +53,4 @@ async def health_check():
     return {"status": "ok"}
 
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])
+app.include_router(groups_router, prefix="/api/v1/groups", tags=["groups"])

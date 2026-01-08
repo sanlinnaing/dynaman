@@ -17,6 +17,7 @@ class User(BaseModel):
     hashed_password: str
     is_active: bool = True
     role: UserRole = UserRole.USER
+    group_ids: list[str] = Field(default_factory=list, description="List of UserGroup IDs this user belongs to")
     provider: str = "local" # local, google, etc.
     
     model_config = ConfigDict(
@@ -29,3 +30,11 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str
     role: UserRole = UserRole.USER
+    group_ids: list[str] = Field(default_factory=list)
+
+class UserUpdate(BaseModel):
+    email: Optional[EmailStr] = None
+    password: Optional[str] = None
+    is_active: Optional[bool] = None
+    role: Optional[UserRole] = None
+    group_ids: Optional[list[str]] = None
