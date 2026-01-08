@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import api from '@/lib/api';
+import api, { groupApi, type UserGroup } from '@/lib/api';
 import { useAuth, type User } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +16,7 @@ import { Trash2, UserPlus } from 'lucide-react';
 
 export const AdminUsers: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
+  const [groups, setGroups] = useState<UserGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const { user: currentUser } = useAuth();
   
@@ -24,11 +25,12 @@ export const AdminUsers: React.FC = () => {
   const [newUserEmail, setNewUserEmail] = useState('');
   const [newUserPassword, setNewUserPassword] = useState('');
   const [newUserRole, setNewUserRole] = useState('user');
+  const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
-    fetchUsers();
+    Promise.all([fetchUsers(), fetchGroups()]);
   }, []);
 
   const fetchUsers = async () => {
@@ -39,6 +41,15 @@ export const AdminUsers: React.FC = () => {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchGroups = async () => {
+    try {
+      const data = await groupApi.list();
+      setGroups(data);
+    } catch (err) {
+      console.error('Failed to fetch groups', err);
     }
   };
 
@@ -62,7 +73,8 @@ export const AdminUsers: React.FC = () => {
       const payload = {
           email: newUserEmail,
           password: newUserPassword,
-          role: newUserRole
+          role: newUserRole,
+          group_ids: selectedGroups
       };
       const response = await api.post('/api/v1/auth/users', payload);
       setUsers([...users, response.data]);
@@ -71,6 +83,7 @@ export const AdminUsers: React.FC = () => {
       setNewUserEmail('');
       setNewUserPassword('');
       setNewUserRole('user');
+      setSelectedGroups([]);
     } catch (err: any) {
         if (err.response?.data?.detail) {
             setError(err.response.data.detail);
@@ -78,6 +91,14 @@ export const AdminUsers: React.FC = () => {
             setError("Failed to create user");
         }
     }
+  };
+
+  const toggleGroup = (groupId: string) => {
+    setSelectedGroups(prev => 
+      prev.includes(groupId) 
+        ? prev.filter(id => id !== groupId) 
+        : [...prev, groupId]
+    );
   };
 
   if (loading) return <div>Loading users...</div>;
@@ -117,6 +138,28 @@ export const AdminUsers: React.FC = () => {
                           <option value="system_admin">System Admin</option>
                       </select>
                   </div>
+                  <div>
+                      <Label className="mb-2 block">Groups</Label>
+                      <div className="border rounded-md p-2 max-h-40 overflow-y-auto space-y-2">
+                        {Array.isArray(groups) && groups.map(group => (
+                          <div key={group._id} className="flex items-center space-x-2">
+                            <input 
+                              type="checkbox" 
+                              id={`group-${group._id}`}
+                              checked={selectedGroups.includes(group._id)}
+                              onChange={() => toggleGroup(group._id)}
+                              className="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4"
+                            />
+                            <Label htmlFor={`group-${group._id}`} className="font-normal cursor-pointer flex-1">
+                              {group.name}
+                            </Label>
+                          </div>
+                        ))}
+                        {(!Array.isArray(groups) || groups.length === 0) && (
+                            <div className="text-sm text-muted-foreground text-center py-2">No groups available</div>
+                        )}
+                      </div>
+                  </div>
                   <Button type="submit">Create User</Button>
               </form>
           </div>
@@ -130,6 +173,7 @@ export const AdminUsers: React.FC = () => {
             <TableRow>
               <TableHead>Email</TableHead>
               <TableHead>Role</TableHead>
+              <TableHead>Groups</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -139,6 +183,12 @@ export const AdminUsers: React.FC = () => {
               <TableRow key={user._id}>
                 <TableCell className="font-medium">{user.email}</TableCell>
                 <TableCell>{user.role}</TableCell>
+                <TableCell>
+                  {user.group_ids?.map((gid: string) => {
+                    const g = groups.find(g => g._id === gid);
+                    return g ? g.name : gid;
+                  }).join(', ')}
+                </TableCell>
                 <TableCell>{user.is_active ? 'Active' : 'Inactive'}</TableCell>
                 <TableCell className="text-right">
                   {user.email !== currentUser?.email && (

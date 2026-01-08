@@ -8,6 +8,7 @@ import { AuthProvider } from '@/context/AuthContext';
 import { RequireAuth } from '@/components/RequireAuth';
 import { RequireSystemAdmin } from '@/components/RequireSystemAdmin';
 import { AdminUsers } from '@/pages/AdminUsers';
+import AdminGroups from '@/pages/AdminGroups';
 import './App.css';
 
 function App() {
@@ -37,6 +38,11 @@ function App() {
             } />
             
             <Route path="admin/users" element={<AdminUsers />} />
+            <Route path="admin/groups" element={
+                <RequireSystemAdmin>
+                    <AdminGroups />
+                </RequireSystemAdmin>
+            } />
           </Route>
           
           <Route path="*" element={<div className="p-4">404 - Page Not Found</div>} />

@@ -6,6 +6,7 @@ export interface User {
   email: string;
   role: 'system_admin' | 'user_admin' | 'user';
   is_active: boolean;
+  group_ids?: string[];
 }
 
 interface AuthContextType {
