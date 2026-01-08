@@ -31,7 +31,7 @@ async def test_create_group(client, mock_group_repo, system_admin_user):
         return group
     mock_group_repo.create.side_effect = create_side_effect
 
-    response = await client.post("/api/v1/groups/", json={
+    response = await client.post("/api/v1/groups", json={
         "name": "Sales",
         "description": "Sales Team"
     })
@@ -54,7 +54,7 @@ async def test_list_groups(client, mock_group_repo, system_admin_user):
         UserGroup(id="2", name="G2")
     ]
 
-    response = await client.get("/api/v1/groups/")
+    response = await client.get("/api/v1/groups")
     assert response.status_code == 200
     assert len(response.json()) == 2
     
@@ -118,7 +118,7 @@ async def test_create_duplicate_group(client, mock_group_repo, system_admin_user
 
     mock_group_repo.get_by_name.return_value = UserGroup(id="1", name="Sales")
     
-    response = await client.post("/api/v1/groups/", json={"name": "Sales"})
+    response = await client.post("/api/v1/groups", json={"name": "Sales"})
     assert response.status_code == 400
     
     app.dependency_overrides.clear()
