@@ -20,7 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import DataInputForm from '@/components/DataInputForm';
+import { DynamicForm } from '@/components/DynamicForm';
 import { useLanguage } from '@/lib/i18n';
 
 interface SchemaField {
@@ -280,7 +280,8 @@ export default function DataExplorer() {
       </div>
 
       {showDataInputForm && schema && (
-        <DataInputForm
+        <DynamicForm
+          schemaName={schema.entity_name}
           schema={schema}
           isOpen={showDataInputForm}
           onClose={() => {

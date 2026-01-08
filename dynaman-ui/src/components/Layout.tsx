@@ -61,6 +61,14 @@ export default function DashboardLayout() {
                     </Button>
                  </Link>
              )}
+             {isSystemAdmin && (
+                 <Link to="/admin/groups">
+                    <Button variant={location.pathname === '/admin/groups' ? 'secondary' : 'ghost'} className="w-full justify-start mt-1">
+                       <Users className="mr-2 h-4 w-4" />
+                       User Groups
+                    </Button>
+                 </Link>
+             )}
           </div>
 
           {isSystemAdmin && (
