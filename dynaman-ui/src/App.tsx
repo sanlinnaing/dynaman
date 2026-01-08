@@ -9,6 +9,7 @@ import { RequireAuth } from '@/components/RequireAuth';
 import { RequireSystemAdmin } from '@/components/RequireSystemAdmin';
 import { AdminUsers } from '@/pages/AdminUsers';
 import AdminGroups from '@/pages/AdminGroups';
+import LayoutDesigner from '@/pages/LayoutDesigner';
 import './App.css';
 
 function App() {
@@ -34,6 +35,11 @@ function App() {
             <Route path="schemas/:entity/edit" element={
                 <RequireSystemAdmin>
                     <SchemaEditor />
+                </RequireSystemAdmin>
+            } />
+            <Route path="schemas/:entity/layout" element={
+                <RequireSystemAdmin>
+                    <LayoutDesigner />
                 </RequireSystemAdmin>
             } />
             

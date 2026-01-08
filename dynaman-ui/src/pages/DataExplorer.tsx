@@ -23,6 +23,10 @@ import {
 import { DynamicForm } from '@/components/DynamicForm';
 import { useLanguage } from '@/lib/i18n';
 
+import { useAuth } from '@/context/AuthContext';
+import { Link } from 'react-router-dom';
+import { LayoutTemplate } from 'lucide-react';
+
 interface SchemaField {
   name: string;
   field_type: string;
@@ -52,6 +56,7 @@ export default function DataExplorer() {
   // Search
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const { user } = useAuth();
 
   // Sorting
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -199,6 +204,14 @@ export default function DataExplorer() {
              />
            </div>
            <Button variant="outline" onClick={() => setRefreshTrigger((prev) => prev + 1)}>{t('common.refresh')}</Button>
+           {user?.role === 'system_admin' && (
+               <Link to={`/schemas/${entity}/layout`}>
+                   <Button variant="outline" className="mr-2">
+                       <LayoutTemplate className="mr-2 h-4 w-4" />
+                       Design Layout
+                   </Button>
+               </Link>
+           )}
            <Button onClick={() => setShowDataInputForm(true)} disabled={!schema}>
               <PlusCircle className="mr-2 h-4 w-4" /> {t('explorer.addData')}
            </Button>
