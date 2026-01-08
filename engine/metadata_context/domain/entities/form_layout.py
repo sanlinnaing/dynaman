@@ -10,9 +10,14 @@ PyObjectId = Annotated[str, BeforeValidator(str)]
 class LayoutComponent(BaseModel):
     id: str
     type: str 
+    label: Optional[str] = None
     children: List[LayoutComponent] = Field(default_factory=list)
-    field_name: Optional[str] = None
+    field_name: Optional[str] = Field(None, alias="fieldName")
+    field_type: Optional[str] = Field(None, alias="fieldType")
+    structure_type: Optional[str] = Field(None, alias="structureType")
     props: Dict[str, Any] = Field(default_factory=dict)
+
+    model_config = ConfigDict(populate_by_name=True)
 
 class FormLayout(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)

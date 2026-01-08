@@ -107,6 +107,13 @@ export const layoutApi = {
   listBySchema: async (schemaName: string) => {
     const response = await api.get<FormLayout[]>(`/api/v1/layouts/by-schema/${schemaName}`);
     return response.data;
+  },
+  update: async (id: string, data: Partial<FormLayout>) => {
+    const response = await api.put<FormLayout>(`/api/v1/layouts/${id}`, data);
+    return response.data;
+  },
+  delete: async (id: string) => {
+    await api.delete(`/api/v1/layouts/${id}`);
   }
 };
 
