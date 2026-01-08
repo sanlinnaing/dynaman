@@ -45,12 +45,42 @@ const LayoutRenderer = ({
                 if (item.type === 'field' && item.fieldName) {
                     return (
                         <div key={item.id}>
-                            <Label>{item.label}</Label>
-                            <Input 
-                                value={formData[item.fieldName] || ''}
-                                onChange={(e) => onChange(item.fieldName!, e.target.value)}
-                                placeholder={`Enter ${item.label}`}
-                            />
+                            <Label htmlFor={item.id}>{item.label}</Label>
+                            {item.fieldType === 'boolean' ? (
+                                <div className="flex items-center space-x-2 mt-1">
+                                    <input 
+                                        type="checkbox" 
+                                        id={item.id}
+                                        className="h-4 w-4 rounded border-gray-300"
+                                        checked={!!formData[item.fieldName]}
+                                        onChange={(e) => onChange(item.fieldName!, e.target.checked)}
+                                    />
+                                    <span className="text-sm text-muted-foreground">Yes</span>
+                                </div>
+                            ) : item.fieldType === 'number' ? (
+                                <Input 
+                                    id={item.id}
+                                    type="number"
+                                    value={formData[item.fieldName] || 0}
+                                    onChange={(e) => onChange(item.fieldName!, Number(e.target.value))}
+                                    placeholder={`Enter ${item.label}`}
+                                />
+                            ) : item.fieldType === 'date' ? (
+                                <Input 
+                                    id={item.id}
+                                    type="date"
+                                    value={formData[item.fieldName] || ''}
+                                    onChange={(e) => onChange(item.fieldName!, e.target.value)}
+                                />
+                            ) : (
+                                <Input 
+                                    id={item.id}
+                                    type="text"
+                                    value={formData[item.fieldName] || ''}
+                                    onChange={(e) => onChange(item.fieldName!, e.target.value)}
+                                    placeholder={`Enter ${item.label}`}
+                                />
+                            )}
                         </div>
                     );
                 }

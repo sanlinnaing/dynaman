@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import api, { layoutApi, groupApi, type FormLayout, type UserGroup } from '@/lib/api';
 import { DndContext, DragOverlay, useDraggable, useDroppable, type DragStartEvent, type DragEndEvent } from '@dnd-kit/core';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Plus, Save, Trash2, Settings } from 'lucide-react';
 import { nanoid } from 'nanoid';
@@ -91,12 +92,28 @@ function ToolboxStructure({ id, label }: { id: string, label: string }) {
 function CanvasItem({ item, onDelete }: { item: LayoutItem, onDelete: (id: string) => void }) {
     if (item.type === 'field') {
         return (
-            <div className="border p-3 rounded mb-2 bg-white flex justify-between items-center group">
-                <div>
-                    <Label className="font-medium">{item.label}</Label>
-                    <div className="h-8 border rounded bg-gray-50 mt-1 w-full min-w-[200px]"></div>
+            <div className="border p-3 rounded mb-2 bg-white flex justify-between items-center group relative hover:border-primary">
+                <div className="w-full pointer-events-none">
+                    <Label className="font-medium mb-1 block">{item.label}</Label>
+                    {item.fieldType === 'boolean' ? (
+                        <div className="flex items-center space-x-2">
+                            <input type="checkbox" className="h-4 w-4 rounded border-gray-300" disabled />
+                            <span className="text-sm text-muted-foreground">Checkbox</span>
+                        </div>
+                    ) : item.fieldType === 'number' ? (
+                        <Input type="number" placeholder="0" disabled className="bg-gray-50" />
+                    ) : item.fieldType === 'date' ? (
+                        <Input type="date" disabled className="bg-gray-50" />
+                    ) : (
+                        <Input type="text" placeholder="Text Input" disabled className="bg-gray-50" />
+                    )}
                 </div>
-                <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 text-red-500" onClick={() => onDelete(item.id)}>
+                <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-red-500 z-10 pointer-events-auto" 
+                    onClick={(e) => { e.stopPropagation(); onDelete(item.id); }}
+                >
                     <Trash2 className="h-4 w-4" />
                 </Button>
             </div>
