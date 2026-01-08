@@ -15,7 +15,7 @@ def require_system_admin(current_user: User = Depends(get_current_user)):
         )
     return current_user
 
-@router.post("/", response_model=UserGroup, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=UserGroup, status_code=status.HTTP_201_CREATED)
 async def create_group(
     group_in: UserGroupCreate,
     repo: Annotated[UserGroupRepository, Depends(get_user_group_repository)],
@@ -28,7 +28,7 @@ async def create_group(
     group = UserGroup(**group_in.model_dump())
     return await repo.create(group)
 
-@router.get("/", response_model=list[UserGroup])
+@router.get("", response_model=list[UserGroup])
 async def list_groups(
     repo: Annotated[UserGroupRepository, Depends(get_user_group_repository)],
     _: Annotated[User, Depends(require_system_admin)]
