@@ -1,4 +1,4 @@
-from domain.entities.user import User, UserCreate
+from domain.entities.user import User, UserCreate, UserUpdate
 from domain.services.security_service import SecurityService
 from infrastructure.user_repository import UserRepository
 from fastapi import HTTPException, status
@@ -19,7 +19,8 @@ class AuthUseCases:
         new_user = User(
             email=user_in.email,
             hashed_password=hashed_password,
-            role=user_in.role
+            role=user_in.role,
+            group_ids=user_in.group_ids
         )
         created_user = await self.user_repo.create(new_user)
         return created_user
@@ -34,6 +35,15 @@ class AuthUseCases:
 
     async def list_users(self):
         return await self.user_repo.get_all()
+
+    async def update_user(self, user_id: str, user_in: UserUpdate):
+        update_data = user_in.model_dump(exclude_unset=True)
+        if "password" in update_data:
+            hashed_password = SecurityService.get_password_hash(update_data["password"])
+            update_data["hashed_password"] = hashed_password
+            del update_data["password"]
+            
+        return await self.user_repo.update(user_id, update_data)
 
     async def delete_user(self, user_id: str):
         return await self.user_repo.delete(user_id)

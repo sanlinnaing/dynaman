@@ -1,6 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from config import settings
 from infrastructure.user_repository import UserRepository
+from infrastructure.user_group_repository import UserGroupRepository
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
@@ -16,6 +17,9 @@ async def get_db():
 
 async def get_user_repository(db = Depends(get_db)):
     return UserRepository(db)
+
+async def get_user_group_repository(db = Depends(get_db)):
+    return UserGroupRepository(db)
 
 async def get_current_user(
     token: str = Depends(oauth2_scheme),
