@@ -3,6 +3,7 @@ import { groupApi, type UserGroup } from '../lib/api';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
+import { useLanguage } from '@/lib/i18n';
 import {
   Table,
   TableBody,
@@ -16,6 +17,7 @@ export default function AdminGroups() {
   const [groups, setGroups] = useState<UserGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { t } = useLanguage();
   
   // Form State
   const [isCreating, setIsCreating] = useState(false);
@@ -28,7 +30,7 @@ export default function AdminGroups() {
       const data = await groupApi.list();
       setGroups(data);
     } catch (err) {
-      setError('Failed to load groups');
+      setError(t('userGroups.loadError'));
       console.error(err);
     } finally {
       setLoading(false);
@@ -48,31 +50,31 @@ export default function AdminGroups() {
       setIsCreating(false);
       fetchGroups();
     } catch (err) {
-      alert('Failed to create group');
+      alert(t('userGroups.createError'));
       console.error(err);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this group?')) return;
+    if (!confirm(t('userGroups.confirmDelete'))) return;
     try {
       await groupApi.delete(id);
       fetchGroups();
     } catch (err) {
-      alert('Failed to delete group');
+      alert(t('userGroups.deleteError'));
       console.error(err);
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div>{t('common.loading')}</div>;
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">User Groups</h1>
+        <h1 className="text-2xl font-bold">{t('userGroups.title')}</h1>
         <Button onClick={() => setIsCreating(!isCreating)}>
-          {isCreating ? 'Cancel' : 'Create Group'}
+          {isCreating ? t('userGroups.cancel') : t('userGroups.createGroup')}
         </Button>
       </div>
 
@@ -80,7 +82,7 @@ export default function AdminGroups() {
         <div className="bg-gray-50 p-4 rounded-md border">
           <form onSubmit={handleCreate} className="space-y-4">
             <div>
-              <Label htmlFor="name">Group Name</Label>
+              <Label htmlFor="name">{t('userGroups.name')}</Label>
               <Input 
                 id="name" 
                 value={newName} 
@@ -89,14 +91,14 @@ export default function AdminGroups() {
               />
             </div>
             <div>
-              <Label htmlFor="desc">Description</Label>
+              <Label htmlFor="desc">{t('userGroups.description')}</Label>
               <Input 
                 id="desc" 
                 value={newDesc} 
                 onChange={(e) => setNewDesc(e.target.value)} 
               />
             </div>
-            <Button type="submit">Save</Button>
+            <Button type="submit">{t('common.save')}</Button>
           </form>
         </div>
       )}
@@ -104,9 +106,9 @@ export default function AdminGroups() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Actions</TableHead>
+            <TableHead>{t('userGroups.table.name')}</TableHead>
+            <TableHead>{t('userGroups.table.description')}</TableHead>
+            <TableHead>{t('userGroups.table.actions')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -121,7 +123,7 @@ export default function AdminGroups() {
                     size="sm"
                     onClick={() => handleDelete(group._id)}
                   >
-                    Delete
+                    {t('common.delete')}
                   </Button>
                 </TableCell>
               </TableRow>
@@ -129,7 +131,7 @@ export default function AdminGroups() {
           ) : (
             <TableRow>
               <TableCell colSpan={3} className="text-center h-24">
-                No groups found.
+                {t('userGroups.noGroups')}
               </TableCell>
             </TableRow>
           )}

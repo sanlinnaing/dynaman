@@ -3,6 +3,7 @@ import DashboardLayout from '@/components/Layout';
 import Home from '@/pages/Home';
 import DataExplorer from '@/pages/DataExplorer';
 import SchemaEditor from '@/pages/SchemaEditor';
+import SchemaListPage from '@/pages/SchemaListPage';
 import { Login } from '@/pages/Login';
 import { AuthProvider } from '@/context/AuthContext';
 import { RequireAuth } from '@/components/RequireAuth';
@@ -25,8 +26,15 @@ function App() {
             </RequireAuth>
           }>
             <Route index element={<Home />} />
+            
+            <Route path="explorer" element={<SchemaListPage mode="explore" />} />
             <Route path="explorer/:entity" element={<DataExplorer />} />
             
+            <Route path="schemas" element={
+                <RequireSystemAdmin>
+                    <SchemaListPage mode="edit" />
+                </RequireSystemAdmin>
+            } />
             <Route path="schemas/new" element={
                 <RequireSystemAdmin>
                     <SchemaEditor />
