@@ -86,8 +86,8 @@ resource "aws_ecs_task_definition" "auth" {
         { name = "DATABASE_NAME", value = "dynaman_auth" }
       ]
       secrets = [
-        { name = "MONGODB_URL", valueFrom = aws_ssm_parameter.mongodb_url.arn },
-        { name = "SECRET_KEY", valueFrom = aws_ssm_parameter.jwt_secret_key.arn }
+        { name = "MONGODB_URL", valueFrom = aws_secretsmanager_secret.mongodb_url.arn },
+        { name = "SECRET_KEY", valueFrom = aws_secretsmanager_secret.jwt_secret_key.arn }
       ]
       logConfiguration = {
         logDriver = "awslogs"
@@ -149,8 +149,8 @@ resource "aws_ecs_task_definition" "meta" {
         { name = "APP_MODE", value = "metadata" }
       ]
       secrets = [
-        { name = "MONGODB_URL", valueFrom = aws_ssm_parameter.mongodb_url.arn },
-        { name = "SECRET_KEY", valueFrom = aws_ssm_parameter.jwt_secret_key.arn }
+        { name = "MONGODB_URL", valueFrom = aws_secretsmanager_secret.mongodb_url.arn },
+        { name = "SECRET_KEY", valueFrom = aws_secretsmanager_secret.jwt_secret_key.arn }
       ]
       logConfiguration = {
         logDriver = "awslogs"
@@ -212,8 +212,8 @@ resource "aws_ecs_task_definition" "exec" {
         { name = "APP_MODE", value = "execution" }
       ]
       secrets = [
-        { name = "MONGODB_URL", valueFrom = aws_ssm_parameter.mongodb_url.arn },
-        { name = "SECRET_KEY", valueFrom = aws_ssm_parameter.jwt_secret_key.arn }
+        { name = "MONGODB_URL", valueFrom = aws_secretsmanager_secret.mongodb_url.arn },
+        { name = "SECRET_KEY", valueFrom = aws_secretsmanager_secret.jwt_secret_key.arn }
       ]
       logConfiguration = {
         logDriver = "awslogs"
