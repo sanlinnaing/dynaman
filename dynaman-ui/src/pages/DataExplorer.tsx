@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/table';
 import { DynamicForm } from '@/components/DynamicForm';
 import { useLanguage } from '@/lib/i18n';
+import { RelativeTime } from '@/components/RelativeTime';
 
 import { useAuth } from '@/context/AuthContext';
 import { Link } from 'react-router-dom';
@@ -151,7 +152,11 @@ export default function DataExplorer() {
     return [
       helper.accessor('id', { header: 'ID', size: 60 }),
       ...dynamicCols,
-      helper.accessor((row) => row._metadata?.created_at, { header: 'Created', id: 'created_at' }),
+      helper.accessor((row) => row._metadata?.created_at, { 
+        header: 'Created', 
+        id: 'created_at',
+        cell: (info) => <RelativeTime date={info.getValue()} />
+      }),
       helper.display({
         id: 'actions',
         header: t('explorer.actions'),
