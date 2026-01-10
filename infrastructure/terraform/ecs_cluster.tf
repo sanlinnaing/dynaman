@@ -2,9 +2,9 @@ resource "aws_ecs_cluster" "main" {
   name = "${var.project_name}-cluster"
 }
 
-# Fetch ECS Optimized AMI (ARM64)
+# Fetch ECS Optimized AMI (ARM64) - Amazon Linux 2023
 data "aws_ssm_parameter" "ecs_optimized_ami" {
-  name = "/aws/service/ecs/optimized-ami/amazon-linux-2/arm64/recommended/image_id"
+  name = "/aws/service/ecs/optimized-ami/amazon-linux-2023/arm64/recommended/image_id"
 }
 
 # Launch Template
