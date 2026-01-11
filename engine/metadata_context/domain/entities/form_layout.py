@@ -15,6 +15,13 @@ class LayoutComponent(BaseModel):
     field_name: Optional[str] = Field(None, alias="fieldName")
     field_type: Optional[str] = Field(None, alias="fieldType")
     structure_type: Optional[str] = Field(None, alias="structureType")
+    
+    # UI Properties
+    required: bool = False
+    read_only: bool = Field(False, alias="readOnly")
+    placeholder: Optional[str] = None
+    helper_text: Optional[str] = Field(None, alias="helperText")
+    
     props: Dict[str, Any] = Field(default_factory=dict)
 
     model_config = ConfigDict(populate_by_name=True)
