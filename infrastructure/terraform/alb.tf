@@ -110,6 +110,22 @@ resource "aws_lb_listener" "http" {
 }
 
 # Listener Rules
+resource "aws_lb_listener_rule" "config" {
+  listener_arn = aws_lb_listener.http.arn
+  priority     = 90
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.auth.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/api/v1/config/*"]
+    }
+  }
+}
+
 resource "aws_lb_listener_rule" "auth" {
   listener_arn = aws_lb_listener.http.arn
   priority     = 100

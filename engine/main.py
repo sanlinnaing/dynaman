@@ -40,6 +40,10 @@ app = FastAPI(
     openapi_url=openapi_url
 )
 
+# Import and setup OpenTelemetry
+from opentelemetry_config import setup_opentelemetry
+setup_opentelemetry(app)
+
 # CORS Configuration
 origins = [
     "http://localhost:5173",  # Vite default
