@@ -43,3 +43,12 @@ variable "jwt_secret_key" {
   type        = string
   sensitive   = true
 }
+
+variable "new_relic_license_key" {
+  description = "New Relic License Key for sending OTel data."
+  type        = string
+  sensitive   = true
+  default     = "YOUR_NEW_RELIC_LICENSE_KEY_PLACEHOLDER"
+}
+
+

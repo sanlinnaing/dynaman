@@ -25,3 +25,19 @@ resource "aws_secretsmanager_secret_version" "jwt_secret_key" {
   secret_id     = aws_secretsmanager_secret.jwt_secret_key.id
   secret_string = var.jwt_secret_key
 }
+
+resource "aws_secretsmanager_secret" "new_relic_license_key" {
+  name        = "/${var.project_name}/${var.environment}/NEW_RELIC_LICENSE_KEY"
+  description = "New Relic License Key for OpenTelemetry"
+  
+  tags = {
+    Environment = var.environment
+  }
+}
+
+resource "aws_secretsmanager_secret_version" "new_relic_license_key" {
+  secret_id     = aws_secretsmanager_secret.new_relic_license_key.id
+  secret_string = var.new_relic_license_key
+}
+
+

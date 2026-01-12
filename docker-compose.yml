@@ -24,6 +24,22 @@ services:
     depends_on:
       - mongodb
 
+  otel-collector:
+    # The user-requested version 0.143.1 seems incorrect, but is required for the connector configuration. Please double-check the version number if issues persist.
+    image: otel/opentelemetry-collector-contrib:0.143.1
+    container_name: dyna_otel_collector
+    restart: always
+    command: ["--config=/etc/otel-collector-local-config.yaml"]
+    volumes:
+      - ./otel-collector-local-config.yaml:/etc/otel-collector-local-config.yaml
+    ports:
+      - "4317:4317" # OTLP gRPC receiver
+      - "4318:4318" # OTLP HTTP receiver
+    environment:
+      # The NEW_RELIC_LICENSE_KEY must be set in your environment (e.g., in a .env file)
+      - NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY:?Please set NEW_RELIC_LICENSE_KEY in your environment}
+      - NEW_RELIC_OTLP_ENDPOINT=${NEW_RELIC_OTLP_ENDPOINT:-https://otlp.nr-data.net:443}
+
   engine-metadata:
     build: ./engine
     container_name: dyna_engine_metadata
@@ -31,8 +47,15 @@ services:
       - APP_MODE=metadata
       - MONGODB_URL=mongodb://mongodb:27017
       - DATABASE_NAME=dynaman
+      - OTEL_ENABLED=true
+      - OTEL_SERVICE_NAME=engine-meta
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_EXPORTER_OTLP_INSECURE=true
+      - APP_ENVIRONMENT=development
     depends_on:
       - mongodb
+      - otel-collector
     restart: always
 
   engine-execution:
@@ -42,8 +65,15 @@ services:
       - APP_MODE=execution
       - MONGODB_URL=mongodb://mongodb:27017
       - DATABASE_NAME=dynaman
+      - OTEL_ENABLED=true
+      - OTEL_SERVICE_NAME=engine-exec
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_EXPORTER_OTLP_INSECURE=true
+      - APP_ENVIRONMENT=development
     depends_on:
       - mongodb
+      - otel-collector
     restart: always
 
   auth-service:
@@ -53,8 +83,17 @@ services:
       - MONGODB_URL=mongodb://mongodb:27017
       - DATABASE_NAME=dynaman_auth
       - SECRET_KEY=09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
+      - OTEL_ENABLED=true
+      - OTEL_SERVICE_NAME=auth-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_EXPORTER_OTLP_INSECURE=true
+      - APP_ENVIRONMENT=development
+      - NEW_RELIC_BROWSER_INGEST_KEY=${NEW_RELIC_BROWSER_INGEST_KEY}
+      - NEW_RELIC_BROWSER_APP_ID=${NEW_RELIC_BROWSER_APP_ID}
     depends_on:
       - mongodb
+      - otel-collector
     restart: always
 
   api-gateway:

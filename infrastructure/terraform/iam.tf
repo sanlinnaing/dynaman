@@ -21,9 +21,9 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# Allow ECS Execution Role to read SSM Parameters
-resource "aws_iam_role_policy" "ecs_ssm_secrets" {
-  name = "${var.project_name}-ecs-ssm-secrets"
+# Allow ECS Execution Role to access secrets from Secrets Manager
+resource "aws_iam_role_policy" "ecs_secrets_manager_access" {
+  name = "${var.project_name}-ecs-secrets-manager-access"
   role = aws_iam_role.ecs_task_execution_role.id
 
   policy = jsonencode({
@@ -31,13 +31,11 @@ resource "aws_iam_role_policy" "ecs_ssm_secrets" {
     Statement = [
       {
         Effect = "Allow"
-        Action = [
-          "ssm:GetParameters",
-          "ssm:GetParameter"
-        ]
+        Action = "secretsmanager:GetSecretValue"
         Resource = [
-          aws_ssm_parameter.mongodb_url.arn,
-          aws_ssm_parameter.jwt_secret_key.arn
+          aws_secretsmanager_secret.mongodb_url.arn,
+          aws_secretsmanager_secret.jwt_secret_key.arn,
+          aws_secretsmanager_secret.new_relic_license_key.arn
         ]
       }
     ]

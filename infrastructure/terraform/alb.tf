@@ -110,6 +110,22 @@ resource "aws_lb_listener" "http" {
 }
 
 # Listener Rules
+resource "aws_lb_listener_rule" "config" {
+  listener_arn = aws_lb_listener.http.arn
+  priority     = 90
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.auth.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/api/v1/config/*"]
+    }
+  }
+}
+
 resource "aws_lb_listener_rule" "auth" {
   listener_arn = aws_lb_listener.http.arn
   priority     = 100
@@ -121,7 +137,7 @@ resource "aws_lb_listener_rule" "auth" {
 
   condition {
     path_pattern {
-      values = ["/api/v1/auth/*"]
+      values = ["/api/v1/auth/*", "/api/v1/groups", "/api/v1/groups/*"]
     }
   }
 }
@@ -137,7 +153,7 @@ resource "aws_lb_listener_rule" "engine_meta" {
 
   condition {
     path_pattern {
-      values = ["/api/v1/schemas/*"]
+      values = ["/api/v1/schemas/*", "/api/v1/layouts", "/api/v1/layouts/*"]
     }
   }
 }

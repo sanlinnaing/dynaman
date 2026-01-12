@@ -12,6 +12,7 @@ interface SchemaField {
   name: string;
   label: string;
   field_type: string;
+  is_required: boolean;
 }
 
 interface Schema {
@@ -26,20 +27,25 @@ interface LayoutItem {
     // Field props
     fieldName?: string;
     fieldType?: string;
+    required?: boolean;
+    readOnly?: boolean;
+    placeholder?: string;
+    helperText?: string;
     // Structure props
     structureType?: string;
     children?: LayoutItem[];
 }
 
 // Draggable Toolbox Item Component
-function ToolboxItem({ id, label, type }: { id: string, label: string, type: string }) {
+function ToolboxItem({ id, label, type, isRequired }: { id: string, label: string, type: string, isRequired: boolean }) {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: id,
         data: {
             type: 'field',
             label,
             fieldName: id.replace('field-', ''),
-            fieldType: type
+            fieldType: type,
+            required: isRequired
         }
     });
 
@@ -53,9 +59,10 @@ function ToolboxItem({ id, label, type }: { id: string, label: string, type: str
             style={style} 
             {...listeners} 
             {...attributes}
-            className="bg-white border p-2 rounded shadow-sm text-sm cursor-grab hover:border-primary touch-none"
+            className="bg-white border p-2 rounded shadow-sm text-sm cursor-grab hover:border-primary touch-none flex justify-between items-center"
         >
-            {label} <span className="text-xs text-muted-foreground ml-1">({type})</span>
+            <span>{label} <span className="text-xs text-muted-foreground ml-1">({type})</span></span>
+            {isRequired && <span className="text-red-500 text-xs font-bold" title="Required by Schema">*</span>}
         </div>
     );
 }
@@ -89,24 +96,46 @@ function ToolboxStructure({ id, label }: { id: string, label: string }) {
 }
 
 // Render Item on Canvas
-function CanvasItem({ item, onDelete }: { item: LayoutItem, onDelete: (id: string) => void }) {
+function CanvasItem({ 
+    item, 
+    onDelete, 
+    onClick, 
+    isSelected 
+}: { 
+    item: LayoutItem, 
+    onDelete: (id: string) => void,
+    onClick: () => void,
+    isSelected: boolean
+}) {
+    const borderClass = isSelected ? 'border-primary ring-2 ring-primary/20' : 'hover:border-primary';
+
     if (item.type === 'field') {
         return (
-            <div className="border p-3 rounded mb-2 bg-white flex justify-between items-center group relative hover:border-primary">
+            <div 
+                className={`border p-3 rounded mb-2 bg-white flex justify-between items-center group relative cursor-pointer ${borderClass}`}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onClick();
+                }}
+            >
                 <div className="w-full pointer-events-none">
-                    <Label className="font-medium mb-1 block">{item.label}</Label>
+                    <Label className="font-medium mb-1 block">
+                        {item.label}
+                        {item.required && <span className="text-red-500 ml-1">*</span>}
+                    </Label>
                     {item.fieldType === 'boolean' ? (
                         <div className="flex items-center space-x-2">
-                            <input type="checkbox" className="h-4 w-4 rounded border-gray-300" disabled />
+                            <input type="checkbox" className="h-4 w-4 rounded border-gray-300" disabled={true} checked={false} readOnly />
                             <span className="text-sm text-muted-foreground">Checkbox</span>
                         </div>
                     ) : item.fieldType === 'number' ? (
-                        <Input type="number" placeholder="0" disabled className="bg-gray-50" />
+                        <Input type="number" placeholder={item.placeholder || "0"} disabled={true} className="bg-gray-50" />
                     ) : item.fieldType === 'date' ? (
-                        <Input type="date" disabled className="bg-gray-50" />
+                        <Input type="date" disabled={true} className="bg-gray-50" />
                     ) : (
-                        <Input type="text" placeholder="Text Input" disabled className="bg-gray-50" />
+                        <Input type="text" placeholder={item.placeholder || "Text Input"} disabled={true} className="bg-gray-50" />
                     )}
+                    {item.helperText && <p className="text-xs text-muted-foreground mt-1">{item.helperText}</p>}
                 </div>
                 <Button 
                     variant="ghost" 
@@ -122,9 +151,15 @@ function CanvasItem({ item, onDelete }: { item: LayoutItem, onDelete: (id: strin
     
     if (item.type === 'structure') {
         return (
-            <div className="border border-dashed border-gray-400 p-4 rounded mb-2 bg-gray-50/50 group relative">
+            <div 
+                className={`border border-dashed border-gray-400 p-4 rounded mb-2 bg-gray-50/50 group relative cursor-pointer ${borderClass}`}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onClick();
+                }}
+            >
                 <div className="text-xs text-muted-foreground uppercase font-semibold mb-2">{item.label}</div>
-                <Button variant="ghost" size="icon" className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-red-500" onClick={() => onDelete(item.id)}>
+                <Button variant="ghost" size="icon" className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-red-500" onClick={(e) => { e.stopPropagation(); onDelete(item.id); }}>
                     <Trash2 className="h-4 w-4" />
                 </Button>
                 <div className="min-h-[50px] bg-white/50 rounded border border-dotted">
@@ -146,6 +181,7 @@ export default function LayoutDesigner() {
   const [loading, setLoading] = useState(true);
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false); // For settings modal
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
 
   // Load Schema, Layouts, and Groups
   useEffect(() => {
@@ -179,8 +215,10 @@ export default function LayoutDesigner() {
   useEffect(() => {
       if (currentLayout) {
           setDefinition(currentLayout.definition || []);
+          setSelectedItemId(null);
       } else {
           setDefinition([]);
+          setSelectedItemId(null);
       }
   }, [currentLayout]);
 
@@ -206,9 +244,20 @@ export default function LayoutDesigner() {
 
   const handleSave = async () => {
       if (!currentLayout) return;
+
+      const definitionToSave = definition.map(item => {
+          if (item.type === 'field' && item.fieldName && schema) {
+              const correspondingSchemaField = schema.fields.find(f => f.name === item.fieldName);
+              if (correspondingSchemaField && correspondingSchemaField.is_required) {
+                  return { ...item, required: true }; // Force required true if schema says so
+              }
+          }
+          return item;
+      });
+
       try {
           const updated = await layoutApi.update(currentLayout._id, {
-              definition: definition,
+              definition: definitionToSave,
               target_group_ids: currentLayout.target_group_ids,
               is_default: currentLayout.is_default
           });
@@ -235,6 +284,13 @@ export default function LayoutDesigner() {
 
   const handleDeleteItem = (id: string) => {
       setDefinition(prev => prev.filter(item => item.id !== id));
+      if (selectedItemId === id) setSelectedItemId(null);
+  };
+
+  const updateItem = (id: string, updates: Partial<LayoutItem>) => {
+      setDefinition(prev => prev.map(item => 
+          item.id === id ? { ...item, ...updates } : item
+      ));
   };
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -256,7 +312,8 @@ export default function LayoutDesigner() {
               fieldName: data.fieldName,
               fieldType: data.fieldType,
               structureType: data.structureType,
-              children: []
+              children: [],
+              required: data.required // Init from drop
           };
 
           setDefinition(prev => [...prev, newItem]);
@@ -273,6 +330,7 @@ export default function LayoutDesigner() {
           <div 
             ref={setNodeRef}
             className={`max-w-4xl mx-auto bg-white min-h-[800px] shadow-lg rounded-lg p-8 border ${isOver ? 'border-primary ring-2 ring-primary/20' : 'border-gray-200'}`}
+            onClick={() => setSelectedItemId(null)} // Deselect when clicking canvas background
           >
                 {!currentLayout ? (
                     <div className="flex items-center justify-center h-full text-muted-foreground">Select or create a layout to start editing</div>
@@ -284,13 +342,26 @@ export default function LayoutDesigner() {
                             </div>
                         )}
                         {definition.map(item => (
-                            <CanvasItem key={item.id} item={item} onDelete={handleDeleteItem} />
+                            <CanvasItem 
+                                key={item.id} 
+                                item={item} 
+                                onDelete={handleDeleteItem}
+                                onClick={() => setSelectedItemId(item.id)}
+                                isSelected={selectedItemId === item.id}
+                            />
                         ))}
                     </div>
                 )}
           </div>
       );
   };
+
+  const selectedItem = definition.find(item => item.id === selectedItemId);
+  const selectedSchemaField = selectedItem && schema 
+    ? schema.fields.find(f => f.name === selectedItem.fieldName) 
+    : null;
+    
+  const isSchemaRequired = selectedSchemaField?.is_required || false;
 
   if (loading) return <div>Loading designer...</div>;
   if (!schema) return <div>Schema not found</div>;
@@ -380,7 +451,13 @@ export default function LayoutDesigner() {
             <h3 className="font-semibold mb-4">Fields</h3>
             <div className="space-y-2">
                 {schema.fields.map(field => (
-                    <ToolboxItem key={field.name} id={`field-${field.name}`} label={field.label || field.name} type={field.field_type} />
+                    <ToolboxItem 
+                        key={field.name} 
+                        id={`field-${field.name}`} 
+                        label={field.label || field.name} 
+                        type={field.field_type} 
+                        isRequired={field.is_required}
+                    />
                 ))}
             </div>
             
@@ -398,9 +475,88 @@ export default function LayoutDesigner() {
         </main>
 
         {/* Right Sidebar: Properties */}
-        <aside className="w-80 border-l bg-muted/20 p-4">
-            <h3 className="font-semibold mb-4">Properties</h3>
-            <div className="text-sm text-muted-foreground">Select an element on the canvas to edit its properties.</div>
+        <aside className="w-80 border-l bg-white p-4 overflow-y-auto shadow-sm">
+            <h3 className="font-semibold mb-4 border-b pb-2">Properties</h3>
+            {selectedItem ? (
+                <div className="space-y-4">
+                    <div>
+                        <Label className="mb-1 block">Label</Label>
+                        <Input 
+                            value={selectedItem.label} 
+                            onChange={(e) => updateItem(selectedItem.id, { label: e.target.value })} 
+                        />
+                    </div>
+
+                    {selectedItem.type === 'field' && (
+                        <>
+                            <div>
+                                <Label className="mb-1 block">Placeholder</Label>
+                                <Input 
+                                    value={selectedItem.placeholder || ''} 
+                                    onChange={(e) => updateItem(selectedItem.id, { placeholder: e.target.value })} 
+                                    placeholder="Enter placeholder text..."
+                                />
+                            </div>
+
+                            <div>
+                                <Label className="mb-1 block">Helper Text</Label>
+                                <Input 
+                                    value={selectedItem.helperText || ''} 
+                                    onChange={(e) => updateItem(selectedItem.id, { helperText: e.target.value })} 
+                                    placeholder="Explanation for the user..."
+                                />
+                            </div>
+
+                            <div className="space-y-2 pt-2">
+                                <div className="flex items-center space-x-2">
+                                    <input 
+                                        type="checkbox" 
+                                        id="prop-required"
+                                        checked={selectedItem.required || isSchemaRequired}
+                                        onChange={(e) => {
+                                            if (!isSchemaRequired) {
+                                                updateItem(selectedItem.id, { required: e.target.checked })
+                                            }
+                                        }}
+                                        disabled={isSchemaRequired}
+                                        className="rounded border-gray-300 disabled:opacity-50"
+                                    />
+                                    <Label htmlFor="prop-required" className="font-normal cursor-pointer">
+                                        Required
+                                        {isSchemaRequired && <span className="text-xs text-muted-foreground ml-2">(Enforced by Schema)</span>}
+                                    </Label>
+                                </div>
+
+                                <div className="flex items-center space-x-2">
+                                    <input 
+                                        type="checkbox" 
+                                        id="prop-readonly"
+                                        checked={selectedItem.readOnly || false}
+                                        onChange={(e) => updateItem(selectedItem.id, { readOnly: e.target.checked })}
+                                        className="rounded border-gray-300"
+                                    />
+                                    <Label htmlFor="prop-readonly" className="font-normal cursor-pointer">Read Only</Label>
+                                </div>
+                            </div>
+
+                            <div className="text-xs text-muted-foreground mt-4 pt-4 border-t">
+                                <p>Field ID: {selectedItem.fieldName}</p>
+                                <p>Type: {selectedItem.fieldType}</p>
+                            </div>
+                        </>
+                    )}
+
+                    {selectedItem.type === 'structure' && (
+                        <div className="text-sm text-muted-foreground">
+                            Structure properties coming soon.
+                        </div>
+                    )}
+                </div>
+            ) : (
+                <div className="text-sm text-muted-foreground text-center py-8">
+                    Select an element on the canvas to edit its properties.
+                </div>
+            )}
         </aside>
       </div>
       

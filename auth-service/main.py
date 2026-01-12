@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from api.dependencies import get_user_repository, get_db
 from domain.entities.user import User, UserRole
 from domain.services.security_service import SecurityService
+from opentelemetry_config import setup_opentelemetry
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -33,6 +34,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Dynaman Auth Service", lifespan=lifespan)
 
+# Setup OpenTelemetry
+setup_opentelemetry(app)
+
 # CORS Configuration
 origins = [
     "http://localhost:5173",  # Vite default
@@ -47,6 +51,23 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# New Relic UI Config Endpoint
+import os
+from pydantic import BaseModel
+
+class UiTelemetryConfig(BaseModel):
+    new_relic_browser_ingest_key: str
+    new_relic_browser_app_id: str
+    environment: str
+
+@app.get("/api/v1/config/ui", response_model=UiTelemetryConfig)
+async def ui_config():
+    return UiTelemetryConfig(
+        new_relic_browser_ingest_key=os.environ.get("NEW_RELIC_BROWSER_INGEST_KEY", ""),
+        new_relic_browser_app_id=os.environ.get("NEW_RELIC_BROWSER_APP_ID", ""),
+        environment=os.environ.get("APP_ENVIRONMENT", "unknown"),
+    )
 
 @app.get("/health")
 async def health_check():

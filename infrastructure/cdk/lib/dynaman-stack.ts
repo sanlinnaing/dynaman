@@ -350,25 +350,28 @@ export class DynamanStack extends cdk.Stack {
     httpListener.addTargets('UiTarget', {
       port: 80,
       targets: [uiService],
-      healthCheck: { path: '/' }
+      healthCheck: { path: '/' },
+      deregistrationDelay: cdk.Duration.seconds(30),
     });
 
-    // Auth -> /api/v1/auth/*
+    // Auth -> /api/v1/auth/*, /api/v1/groups, /api/v1/groups/*
     httpListener.addTargets('AuthTarget', {
       priority: 100,
-      conditions: [elbv2.ListenerCondition.pathPatterns(['/api/v1/auth/*'])],
+      conditions: [elbv2.ListenerCondition.pathPatterns(['/api/v1/auth/*', '/api/v1/groups', '/api/v1/groups/*'])],
       port: 8000,
       targets: [authService],
-      healthCheck: { path: '/health' }
+      healthCheck: { path: '/health' },
+      deregistrationDelay: cdk.Duration.seconds(30),
     });
 
-    // Meta -> /api/v1/schemas/*
+    // Meta -> /api/v1/schemas/*, /api/v1/layouts, /api/v1/layouts/*
     httpListener.addTargets('MetaTarget', {
       priority: 110,
-      conditions: [elbv2.ListenerCondition.pathPatterns(['/api/v1/schemas/*'])],
+      conditions: [elbv2.ListenerCondition.pathPatterns(['/api/v1/schemas/*', '/api/v1/layouts', '/api/v1/layouts/*'])],
       port: 8000,
       targets: [metaService],
-      healthCheck: { path: '/api/v1/schemas/openapi.json' }
+      healthCheck: { path: '/api/v1/schemas/openapi.json' },
+      deregistrationDelay: cdk.Duration.seconds(30),
     });
 
     // Exec -> /api/v1/data/*
@@ -377,7 +380,8 @@ export class DynamanStack extends cdk.Stack {
       conditions: [elbv2.ListenerCondition.pathPatterns(['/api/v1/data/*'])],
       port: 8000,
       targets: [execService],
-      healthCheck: { path: '/api/v1/data/openapi.json' }
+      healthCheck: { path: '/api/v1/data/openapi.json' },
+      deregistrationDelay: cdk.Duration.seconds(30),
     });
 
     // Outputs
