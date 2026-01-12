@@ -44,11 +44,11 @@ variable "jwt_secret_key" {
   sensitive   = true
 }
 
-variable "new_relic_license_key" {
+variable "NEW_RELIC_INGEST_KEY" {
   description = "New Relic License Key for sending OTel data."
   type        = string
   sensitive   = true
-  default     = "YOUR_NEW_RELIC_LICENSE_KEY_PLACEHOLDER"
+  default     = "YOUR_NEW_RELIC_INGEST_KEY_PLACEHOLDER"
 }
 
 

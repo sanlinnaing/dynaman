@@ -1,43 +1,25 @@
-resource "aws_secretsmanager_secret" "mongodb_url" {
-  name        = "/${var.project_name}/${var.environment}/MONGODB_URL"
-  description = "MongoDB Connection String"
-  
-  tags = {
-    Environment = var.environment
-  }
+data "aws_secretsmanager_secret" "mongodb_url" {
+  name = "/${var.project_name}/${var.environment}/MONGODB_URL"
 }
 
-resource "aws_secretsmanager_secret_version" "mongodb_url" {
-  secret_id     = aws_secretsmanager_secret.mongodb_url.id
-  secret_string = var.mongodb_url
+data "aws_secretsmanager_secret_version" "mongodb_url" {
+  secret_id = data.aws_secretsmanager_secret.mongodb_url.id
 }
 
-resource "aws_secretsmanager_secret" "jwt_secret_key" {
-  name        = "/${var.project_name}/${var.environment}/JWT_SECRET_KEY"
-  description = "JWT Secret Key for signing tokens"
-  
-  tags = {
-    Environment = var.environment
-  }
+data "aws_secretsmanager_secret" "jwt_secret_key" {
+  name = "/${var.project_name}/${var.environment}/JWT_SECRET_KEY"
 }
 
-resource "aws_secretsmanager_secret_version" "jwt_secret_key" {
-  secret_id     = aws_secretsmanager_secret.jwt_secret_key.id
-  secret_string = var.jwt_secret_key
+data "aws_secretsmanager_secret_version" "jwt_secret_key" {
+  secret_id = data.aws_secretsmanager_secret.jwt_secret_key.id
 }
 
-resource "aws_secretsmanager_secret" "new_relic_license_key" {
-  name        = "/${var.project_name}/${var.environment}/NEW_RELIC_LICENSE_KEY"
-  description = "New Relic License Key for OpenTelemetry"
-  
-  tags = {
-    Environment = var.environment
-  }
+data "aws_secretsmanager_secret" "NEW_RELIC_INGEST_KEY" {
+  name = "/${var.project_name}/${var.environment}/NEW_RELIC_INGEST_KEY"
 }
 
-resource "aws_secretsmanager_secret_version" "new_relic_license_key" {
-  secret_id     = aws_secretsmanager_secret.new_relic_license_key.id
-  secret_string = var.new_relic_license_key
+data "aws_secretsmanager_secret_version" "NEW_RELIC_INGEST_KEY" {
+  secret_id = data.aws_secretsmanager_secret.NEW_RELIC_INGEST_KEY.id
 }
 
 

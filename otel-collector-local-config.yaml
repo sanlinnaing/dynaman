@@ -44,7 +44,7 @@ exporters:
   otlphttp/newrelic:
     endpoint: "https://otlp.nr-data.net"
     headers:
-      "api-key": "${NEW_RELIC_LICENSE_KEY}"
+      "api-key": "${NEW_RELIC_INGEST_KEY}"
   
   debug:
     verbosity: detailed

@@ -33,9 +33,9 @@ resource "aws_iam_role_policy" "ecs_secrets_manager_access" {
         Effect = "Allow"
         Action = "secretsmanager:GetSecretValue"
         Resource = [
-          aws_secretsmanager_secret.mongodb_url.arn,
-          aws_secretsmanager_secret.jwt_secret_key.arn,
-          aws_secretsmanager_secret.new_relic_license_key.arn
+          data.aws_secretsmanager_secret.mongodb_url.arn,
+          data.aws_secretsmanager_secret.jwt_secret_key.arn,
+          data.aws_secretsmanager_secret.NEW_RELIC_INGEST_KEY.arn
         ]
       }
     ]
