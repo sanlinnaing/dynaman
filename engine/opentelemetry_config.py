@@ -68,17 +68,23 @@ def setup_opentelemetry(app):
 
     # Instrument Pymongo for MongoDB queries (which covers motor)
     def request_hook(span, event):
-        if span and span.is_recording():
-            # Manually ensure New Relic sees the database name
-            # 'event.database_name' is provided by the pymongo monitoring API
+        if not span or not span.is_recording():
+            return
+
+        # REQUIRED for New Relic DB UI
+        span.set_attribute("db.system", "mongodb")
+        span.set_attribute("db.operation", event.command_name)
+
+        # Database name
+        if event.database_name:
             span.set_attribute("db.name", event.database_name)
-            span.set_attribute("db.namespace", event.database_name) # Newer standard
-            
-            # Optional: capture the collection name if missing
-            if hasattr(event, 'command') and event.command:
-                collection = event.command.get(event.command_name)
-                if isinstance(collection, str):
-                    span.set_attribute("db.collection.name", collection)
+            span.set_attribute("db.namespace", event.database_name)
+
+        # Collection name (best-effort)
+        if hasattr(event, "command") and event.command:
+            collection = event.command.get(event.command_name)
+            if isinstance(collection, str):
+                span.set_attribute("db.collection.name", collection)
 
     # Apply the instrumentation with the hook
     PymongoInstrumentor().instrument(tracer_provider=tracer_provider, request_hook=request_hook)
